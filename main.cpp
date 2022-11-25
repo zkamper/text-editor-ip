@@ -40,10 +40,11 @@ int main()
            else
                {
                 lines[line_index][col_index[line_index]]=curr;
+                ///afisez
                 bgiout<<lines[line_index][col_index[line_index]];
-                col_index[line_index]++;
                 outstreamxy(x,y);
                 x=x+textwidth("Y")+2;
+                col_index[line_index]++;
                }
            curr=getch();
           }
