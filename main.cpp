@@ -9,10 +9,11 @@ char d;
 
 int main()
 {
- winlenght=1280;
- winheight=720;
- initwindow(winlenght, winheight, "Notepad^2");
+  winlenght = 1280;
+  winheight = 720;
+  initwindow(winlenght, winheight, "Notepad^2");
 
+<<<<<<< HEAD
  d=getch();
  cout<<d;
 
@@ -24,4 +25,12 @@ int main()
 
  getch(); closegraph();
  return 0;
+=======
+  setbkcolor(COLOR(221,234,235));
+  cleardevice();
+
+  getch();
+  closegraph();
+  return 0;
+>>>>>>> 94d9709fd97461b1028db3003aa5f7ba07d8e566
 }
