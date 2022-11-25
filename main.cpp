@@ -14,6 +14,15 @@ char curr;
 
 int x, y;
 
+void drawIcons()
+{
+  readimagefile("icons\\save_icon.gif",5,5,36,36);
+  readimagefile("icons\\copy_icon.gif",46,5,77,36);
+  readimagefile("icons\\paste_icon.gif",87,5,118,36);
+}
+
+
+
 int main()
 {   ///initializare fereastra
     winlenght = 1280;
@@ -22,7 +31,7 @@ int main()
     setbkcolor(COLOR(221,234,235));
     settextstyle(SANS_SERIF_FONT,0,0);
     cleardevice();
-
+    drawIcons();
     setcolor(BLACK);
     curr=getch();
     while (curr!=27) ///escape
