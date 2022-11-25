@@ -6,16 +6,14 @@ int winlenght, winheight;
 
 int main()
 {
- winlenght=1280;
- winheight=720;
- initwindow(winlenght, winheight, "Notepad^2");
+  winlenght = 1280;
+  winheight = 720;
+  initwindow(winlenght, winheight, "Notepad^2");
 
+  setbkcolor(COLOR(221,234,235));
+  cleardevice();
 
- int x = 400, y = 300, r;
- line(x,y,x+100,y+100);
-
-
- getch();
- closegraph();
- return 0;
+  getch();
+  closegraph();
+  return 0;
 }
