@@ -1,12 +1,13 @@
 #include <iostream>
 #include <graphics.h>
-
-using namespace std;
+#include <winbgim.h>
 
 int main()
 {
-    initwindow(800,600);
-    line(0,0,800,600);
-    getch();
-    return 0;
+//  int gd = DETECT, gm;
+//  initgraph(&gd, &gm, "");
+  initwindow(800,600); int x = 400, y = 300, r;
+  for (r = 25; r <= 125; r += 20)
+      circle(x, y, r);
+  getch(); closegraph(); return 0;
 }
