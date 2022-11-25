@@ -1,0 +1,1 @@
+settextstyle(DEFAULT_FONT,0,0);
