@@ -1,20 +1,21 @@
 #include <iostream>
 #include <graphics.h>
-#include <winbgim.h>
-
 using namespace std;
+
+int winlenght, winheight;
 
 int main()
 {
-//  int gd = DETECT, gm;
-//  initgraph(&gd, &gm, "");
-  initwindow(800,600); int x = 400, y = 300, r;
-  for (r = 25; r <= 125; r += 20)
-      circle(x, y, r);
+ winlenght=1280;
+ winheight=720;
+ initwindow(winlenght, winheight, "Notepad^2");
 
-  cout<<"Hello Patrut!";
 
-  getch();
-  closegraph();
-  return 0;
+ int x = 400, y = 300, r;
+ line(x,y,x+100,y+100);
+
+
+ getch();
+ closegraph();
+ return 0;
 }
