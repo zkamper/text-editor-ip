@@ -2,6 +2,8 @@
 #include <graphics.h>
 #include <winbgim.h>
 
+using namespace std;
+
 int main()
 {
 //  int gd = DETECT, gm;
@@ -10,4 +12,5 @@ int main()
   for (r = 25; r <= 125; r += 20)
       circle(x, y, r);
   getch(); closegraph(); return 0;
+  cout<<"Hello Patrut!";
 }
