@@ -4,33 +4,31 @@
 using namespace std;
 
 int winlenght, winheight;
+
 char lines[100][1024];
-char d;
+char c;
+int x, y;
 
 int main()
-{
-  winlenght = 1280;
-  winheight = 720;
-  initwindow(winlenght, winheight, "Notepad^2");
+{   ///initializare fereastra
+    winlenght = 1280;
+    winheight = 720;
+    initwindow(winlenght, winheight, "Notepad^2");
+    setbkcolor(COLOR(221,234,235));
+    cleardevice();
 
-<<<<<<< HEAD
- d=getch();
- cout<<d;
+    setcolor(BLACK);
+    c=getch();
+    while (c!=27) ///escape
+          {
 
- int x = 400, y = 300, r;
- line(x,y,x+100,y+100);
+           line(x,y,x+50,y+50);
+           x=y=x+10;
+           c=getch();
+          }
 
 
 
-
- getch(); closegraph();
- return 0;
-=======
-  setbkcolor(COLOR(221,234,235));
-  cleardevice();
-
-  getch();
-  closegraph();
-  return 0;
->>>>>>> 94d9709fd97461b1028db3003aa5f7ba07d8e566
+    closegraph();
+    return 0;
 }
