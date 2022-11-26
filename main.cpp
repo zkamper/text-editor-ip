@@ -56,13 +56,13 @@ void setTextFont()
   case 1:  settextstyle(TRIPLEX_FONT,0,0);     lengthError=1.2; break;
   case 2:  settextstyle(SMALL_FONT,0,10);      lengthError=1;   break;
   case 3:  settextstyle(SANS_SERIF_FONT,0,10); lengthError=1;   break;
-  case 4:  settextstyle(GOTHIC_FONT,0,0);      lengthError=1.2;   break;
+  case 4:  settextstyle(GOTHIC_FONT,0,0);      lengthError=1.2; break;
   case 5:  settextstyle(SCRIPT_FONT,0,0);      lengthError=1;   break;
-  case 6:  settextstyle(SIMPLEX_FONT,0,0);     lengthError=1.3;   break;
+  case 6:  settextstyle(SIMPLEX_FONT,0,0);     lengthError=1.3; break;
   case 7:  settextstyle(TRIPLEX_SCR_FONT,0,0); lengthError=1;   break;
   case 8:  settextstyle(COMPLEX_FONT,0,0);     lengthError=1;   break;
-  case 9:  settextstyle(EUROPEAN_FONT,0,0);    lengthError=1.3;   break;
-  case 10: settextstyle(BOLD_FONT,0,0);        lengthError=1.1;   break;
+  case 9:  settextstyle(EUROPEAN_FONT,0,0);    lengthError=1.3; break;
+  case 10: settextstyle(BOLD_FONT,0,0);        lengthError=1.1; break;
   default: settextstyle(DEFAULT_FONT,0,0);     lengthError=1;   break;
  }
  setcolor(BLACK);
@@ -103,7 +103,11 @@ char curr;
 
 void writeText()
 {
-    windowsInit();
+ ///functie pentru afisarea progresiva a textului
+}
+
+void readText()
+{
     y = saveButton.buttonHeight+10;
     double offsetHeight;
     double offsetLength;
@@ -118,6 +122,7 @@ void writeText()
             offsetHeight=textheight(&curr);
             y=y+offsetHeight;
             x=0;
+
         }
         else
         {
@@ -136,9 +141,7 @@ void writeText()
 int main()
 {
     windowsInit();
-    drawIcons();
-    
-    writeText();
+    readText();
     closegraph();
     return 0;
 }
