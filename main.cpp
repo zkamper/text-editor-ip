@@ -44,7 +44,7 @@ void drawIcons()
     drawButton(fontButton);
 }
 
-int font=8; /// 8 - font default, fara niciun offset
+int font=8; /// 8 - font recomandat, fara niciun offset
 void setTextFont(double &lengthError)
 {lengthError=1;
  switch (font)
@@ -78,8 +78,6 @@ void windowsInit()
     initwindow(winLength, winHeight, "Notepad^2");
     setbkcolor(COLOR(221,234,235));
     cleardevice();
-    drawIcons();
-    registermousehandler(WM_RBUTTONDOWN,getButton);
 }
 
 int x, y;
@@ -87,7 +85,7 @@ char text[NMAX];
 int lgtext;
 char curr;
 
-void getText()
+void writeText()
 {
     double offsetHeight;
     double offsetLength;
@@ -105,7 +103,6 @@ void getText()
         }
         else
         {
-
             ///afisez
             bgiout<<curr;
             outstreamxy(x,y);
@@ -121,7 +118,9 @@ void getText()
 int main()
 {
     windowsInit();
-    getText();
+    drawIcons();
+    registermousehandler(WM_RBUTTONDOWN,getButton);
+    writeText();
     closegraph();
     return 0;
 }
