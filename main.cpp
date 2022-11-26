@@ -8,6 +8,8 @@ using namespace std;
 double lengthError;
 Button saveButton,copyButton,pasteButton,fontButton;
 
+void getButtonClick(int x,int y);
+
 void drawIcons()
 {
     saveButton.bkcolor = COLOR(177,187,188);
@@ -42,6 +44,8 @@ void drawIcons()
     drawButton(copyButton);
     drawButton(pasteButton);
     drawButton(fontButton);
+
+    registermousehandler(WM_LBUTTONDOWN,getButtonClick);
 }
 
 int font=8; /// 8 - font recomandat, fara niciun offset
@@ -66,7 +70,12 @@ void setTextFont(double &lengthError)
 
 void getButtonClick(int x, int y)
 {
-
+    Button listButtons[] = {copyButton,saveButton,pasteButton,fontButton};
+    for(Button b: listButtons)
+    {
+        if(b.b.x <= x && x<=b.b.x + b.buttonWidth && b.b.y <= y && y<=b.b.y + b.buttonHeight)
+            cout<<b.text<<" ";
+    }
 }
 
 int winLength, winHeight;
@@ -122,7 +131,7 @@ int main()
 {
     windowsInit();
     drawIcons();
-    registermousehandler(WM_RBUTTONDOWN,getButtonClick);
+    
     writeText();
     closegraph();
     return 0;
