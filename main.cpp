@@ -15,7 +15,7 @@ char curr;
 
 Button saveButton,copyButton,pasteButton;
 
-int x, y;
+int x, y, font=4;
 
 
 void drawIcons()
@@ -43,9 +43,9 @@ void drawIcons()
     drawButton(pasteButton);
 }
 
-void setTextFont(int x=0)
-{
- switch (x)
+void setTextFont(int &lengthError)
+{lengthError=0;
+ switch (font)
  {
   case 1:  settextstyle(TRIPLEX_FONT,0,0); break;
   case 2:  settextstyle(SMALL_FONT,0,0); break;
@@ -71,20 +71,27 @@ void windowsInit()
     setbkcolor(COLOR(221,234,235));
     cleardevice();
     drawIcons();
-    setTextFont(1);
 }
 
 int main()
 {
     windowsInit();
     y = saveButton.buttonHeight+10;
-    int offsetHeight=textheight("1"); ///dimensiune fixa
-    int offsetLenght;
+    double offsetHeight;
+    double offsetLenght;
+    int lengthError;
+    setTextFont(lengthError);
 
     curr=getch();
     while (curr!=27) ///escape
           {
-           if (curr==13) {line_index++; y=y+offsetHeight; x=0;}
+           if (curr==13)
+              {
+              line_index++;
+              offsetHeight=textheight(&curr);
+              y=y+offsetHeight;
+              x=0;
+              }
            else
                {
                 lines[line_index][col_index[line_index]]=curr;
@@ -92,7 +99,7 @@ int main()
                 bgiout<<lines[line_index][col_index[line_index]];
                 outstreamxy(x,y);
                 offsetLenght=textwidth(&curr);
-                x=x+offsetLenght+2;
+                x=x+12.0/10*offsetLenght;
                 col_index[line_index]++;
                }
            curr=getch();
