@@ -74,9 +74,18 @@ void setTextFont(double &lengthError)
  setcolor(BLACK);
 }
 
-void getButton(int x, int y)
+void getButtonClick(int x, int y)
 {
-    
+    Button listOfButtons[] = {copyButton,saveButton,pasteButton,fontButton};
+    for(Button b: listOfButtons)
+    {
+        if(b.b.x <= x && x<= b.b.x + b.buttonWidth && b.b.y <= y && y <= b.b.y + b.buttonHeight)
+            cout<<b.text<<" ";
+        if(strcmp(b.text,"Font") == 0)
+        {
+            font = (font+1)%11;
+        }
+    }
 }
 
 void windowsInit()
@@ -88,12 +97,12 @@ void windowsInit()
     setbkcolor(COLOR(221,234,235));
     cleardevice();
     drawIcons();
-    registermousehandler(WM_RBUTTONDOWN,getButton);
 }
 
 int main()
 {
     windowsInit();
+    registermousehandler(WM_LBUTTONDOWN,getButtonClick);
     y = saveButton.buttonHeight+10;
     double offsetHeight;
     double offsetLenght;
