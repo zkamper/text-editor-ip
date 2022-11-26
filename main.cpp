@@ -13,7 +13,7 @@ int col_index[LMAX];
 int line_index=0;
 char curr;
 
-Button saveButton,copyButton,pasteButton;
+Button saveButton,copyButton,pasteButton,fontButton;
 
 int x, y, font=4;
 
@@ -23,24 +23,35 @@ void drawIcons()
     saveButton.bkcolor = COLOR(177,187,188);
     copyButton.bkcolor = COLOR(177,187,188);
     pasteButton.bkcolor = COLOR(177,187,188);
+    fontButton.bkcolor =  COLOR(177,187,188);
+    
     saveButton.icon = "icons\\save_icon.gif";
     copyButton.icon = "icons\\copy_icon.gif";
     pasteButton.icon = "icons\\paste_icon.gif";
+    
     saveButton.text = "Save";
     copyButton.text = "Copy";
     pasteButton.text = "Paste";
+    fontButton.text = "Font";
+    
     saveButton.iconWidth = pasteButton.iconWidth = copyButton.iconWidth = 32;
-    saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
+    saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight =  32;
+    
     int offset = 5;
-    saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = 125;
-    saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = 40;
+    saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 125;
+    saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
+    
     saveButton.b.x = offset;
     copyButton.b.x = saveButton.b.x+saveButton.buttonWidth+offset;
     pasteButton.b.x = copyButton.b.x+copyButton.buttonWidth+offset;
-    saveButton.b.y = copyButton.b.y = pasteButton.b.y = offset;
+    fontButton.b.x = pasteButton.b.x + pasteButton.buttonWidth+offset;
+    
+    saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = offset;
+    
     drawButton(saveButton);
     drawButton(copyButton);
     drawButton(pasteButton);
+    drawButton(fontButton);
 }
 
 void setTextFont(int &lengthError)
@@ -62,6 +73,11 @@ void setTextFont(int &lengthError)
  setcolor(BLACK);
 }
 
+void getButton(int x, int y)
+{
+    
+}
+
 void windowsInit()
 {
  ///initializare fereastra
@@ -71,6 +87,7 @@ void windowsInit()
     setbkcolor(COLOR(221,234,235));
     cleardevice();
     drawIcons();
+    registermousehandler(WM_RBUTTONDOWN,getButton);
 }
 
 int main()
