@@ -75,6 +75,11 @@ void getButtonClick(int x, int y)
     {
         if(b.b.x <= x && x<=b.b.x + b.buttonWidth && b.b.y <= y && y<=b.b.y + b.buttonHeight)
             cout<<b.text<<" ";
+        if(strcmp(b.text,"Font")==0)
+        {
+            font=(font+1)%11;
+            setTextFont(lengthError);
+        }
     }
 }
 
