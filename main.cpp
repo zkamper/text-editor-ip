@@ -79,7 +79,7 @@ void getButtonClick(int x, int y)
         if(strcmp(b[i].text,"Font")==0)
         {
             font=(font+1)%11;
-            setTextFont(lengthError);
+            setTextFont();
         }
     }
 }
