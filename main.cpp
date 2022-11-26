@@ -9,6 +9,7 @@ double lengthError;
 Button saveButton,copyButton,pasteButton,fontButton;
 
 void getButtonClick(int x,int y);
+void writeText();
 
 void drawIcons()
 {
@@ -80,6 +81,7 @@ void getButtonClick(int x, int y)
         {
             font=(font+1)%11;
             setTextFont();
+            writeText();
         }
     }
 }
