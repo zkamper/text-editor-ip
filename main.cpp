@@ -43,29 +43,56 @@ void drawIcons()
     drawButton(pasteButton);
 }
 
+void setTextFont(int x=0)
+{
+ switch (x)
+ {
+  case 1:  settextstyle(TRIPLEX_FONT,0,0); break;
+  case 2:  settextstyle(SMALL_FONT,0,0); break;
+  case 3:  settextstyle(SANS_SERIF_FONT,0,0); break;
+  case 4:  settextstyle(GOTHIC_FONT,0,0); break;
+  case 5:  settextstyle(SCRIPT_FONT,0,0); break;
+  case 6:  settextstyle(SIMPLEX_FONT,0,0); break;
+  case 7:  settextstyle(TRIPLEX_SCR_FONT,0,0); break;
+  case 8:  settextstyle(COMPLEX_FONT,0,0); break;
+  case 9:  settextstyle(EUROPEAN_FONT,0,0); break;
+  case 10: settextstyle(BOLD_FONT,0,0); break;
+  default: settextstyle(DEFAULT_FONT,0,0);
+ }
+ setcolor(BLACK);
+}
 
-int main()
-{   ///initializare fereastra
+void windowsInit()
+{
+ ///initializare fereastra
     winlenght = 1280;
     winheight = 720;
     initwindow(winlenght, winheight, "Notepad^2");
     setbkcolor(COLOR(221,234,235));
-    settextstyle(DEFAULT_FONT,0,0);
     cleardevice();
     drawIcons();
+    setTextFont(1);
+}
+
+int main()
+{
+    windowsInit();
     y = saveButton.buttonHeight+10;
-    setcolor(BLACK);
+    int offsetHeight=textheight("1"); ///dimensiune fixa
+    int offsetLenght;
+
     curr=getch();
     while (curr!=27) ///escape
           {
-           if (curr==13) {line_index++; y=y+textheight("Y")-1; x=0;}
+           if (curr==13) {line_index++; y=y+offsetHeight; x=0;}
            else
                {
                 lines[line_index][col_index[line_index]]=curr;
                 ///afisez
                 bgiout<<lines[line_index][col_index[line_index]];
                 outstreamxy(x,y);
-                x=x+textwidth("Y")+2;
+                offsetLenght=textwidth(&curr);
+                x=x+offsetLenght+2;
                 col_index[line_index]++;
                }
            curr=getch();
