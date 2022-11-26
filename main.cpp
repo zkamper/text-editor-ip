@@ -8,7 +8,12 @@ using namespace std;
 double lengthError;
 Button saveButton,copyButton,pasteButton,fontButton;
 
+struct {int x, y, length; char c;} text[NMAX];
+
+int lgtext;
+
 void getButtonClick(int x,int y);
+void setPosChar(char curr);
 
 void drawIcons()
 {
@@ -96,8 +101,7 @@ void windowsInit()
     drawIcons();
 }
 
-struct {int x, y, length; char c;} text[NMAX];
-int lgtext;
+
 
 double offsetHeight, offsetLength;
 double currWordLength=0;
@@ -156,9 +160,8 @@ void setPosChar(char curr)
     }
  else
      {
-      cleardevice();
-      drawIcons();
-
+      setfillstyle(0,COLOR(221,234,235));
+      bar(0,saveButton.buttonHeight+10,winLength,winHeight);
       write(0,currWordStart-1);
       y=y+offsetHeight; x=8;
       for (int i=currWordStart; i<=lgtext; i++)
