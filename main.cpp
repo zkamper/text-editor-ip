@@ -15,7 +15,7 @@ char curr;
 
 Button saveButton,copyButton,pasteButton,fontButton;
 
-int x, y, font=4;
+int x, y;
 
 
 void drawIcons()
@@ -54,21 +54,22 @@ void drawIcons()
     drawButton(fontButton);
 }
 
-void setTextFont(int &lengthError)
-{lengthError=0;
+int font=8; /// 8 - font default, fara niciun offset
+void setTextFont(double &lengthError)
+{lengthError=1;
  switch (font)
  {
-  case 1:  settextstyle(TRIPLEX_FONT,0,0); break;
-  case 2:  settextstyle(SMALL_FONT,0,0); break;
-  case 3:  settextstyle(SANS_SERIF_FONT,0,0); break;
-  case 4:  settextstyle(GOTHIC_FONT,0,0); break;
-  case 5:  settextstyle(SCRIPT_FONT,0,0); break;
-  case 6:  settextstyle(SIMPLEX_FONT,0,0); break;
-  case 7:  settextstyle(TRIPLEX_SCR_FONT,0,0); break;
-  case 8:  settextstyle(COMPLEX_FONT,0,0); break;
-  case 9:  settextstyle(EUROPEAN_FONT,0,0); break;
-  case 10: settextstyle(BOLD_FONT,0,0); break;
-  default: settextstyle(DEFAULT_FONT,0,0);
+  case 1:  settextstyle(TRIPLEX_FONT,0,0);     lengthError=1.2; break;
+  case 2:  settextstyle(SMALL_FONT,0,10);      lengthError=1;   break;
+  case 3:  settextstyle(SANS_SERIF_FONT,0,10); lengthError=1;   break;
+  case 4:  settextstyle(GOTHIC_FONT,0,0);      lengthError=1.2;   break;
+  case 5:  settextstyle(SCRIPT_FONT,0,0);      lengthError=1;   break;
+  case 6:  settextstyle(SIMPLEX_FONT,0,0);     lengthError=1.3;   break;
+  case 7:  settextstyle(TRIPLEX_SCR_FONT,0,0); lengthError=1;   break;
+  case 8:  settextstyle(COMPLEX_FONT,0,0);     lengthError=1;   break;
+  case 9:  settextstyle(EUROPEAN_FONT,0,0);    lengthError=1.3;   break;
+  case 10: settextstyle(BOLD_FONT,0,0);        lengthError=1.1;   break;
+  default: settextstyle(DEFAULT_FONT,0,0);     lengthError=1;   break;
  }
  setcolor(BLACK);
 }
@@ -96,7 +97,7 @@ int main()
     y = saveButton.buttonHeight+10;
     double offsetHeight;
     double offsetLenght;
-    int lengthError;
+    double lengthError;
     setTextFont(lengthError);
 
     curr=getch();
@@ -104,10 +105,10 @@ int main()
           {
            if (curr==13)
               {
-              line_index++;
-              offsetHeight=textheight(&curr);
-              y=y+offsetHeight;
-              x=0;
+               line_index++;
+               offsetHeight=textheight(&curr);
+               y=y+offsetHeight;
+               x=0;
               }
            else
                {
@@ -116,7 +117,7 @@ int main()
                 bgiout<<lines[line_index][col_index[line_index]];
                 outstreamxy(x,y);
                 offsetLenght=textwidth(&curr);
-                x=x+12.0/10*offsetLenght;
+                x=x+lengthError*offsetLenght;
                 col_index[line_index]++;
                }
            curr=getch();
