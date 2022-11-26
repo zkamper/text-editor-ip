@@ -64,7 +64,7 @@ void setTextFont(double &lengthError)
  setcolor(BLACK);
 }
 
-void getButton(int x, int y)
+void getButtonClick(int x, int y)
 {
 
 }
@@ -78,6 +78,7 @@ void windowsInit()
     initwindow(winLength, winHeight, "Notepad^2");
     setbkcolor(COLOR(221,234,235));
     cleardevice();
+    drawIcons();
 }
 
 int x, y;
@@ -87,6 +88,8 @@ char curr;
 
 void writeText()
 {
+    windowsInit();
+    y = saveButton.buttonHeight+10;
     double offsetHeight;
     double offsetLength;
     setTextFont(lengthError);
@@ -119,7 +122,7 @@ int main()
 {
     windowsInit();
     drawIcons();
-    registermousehandler(WM_RBUTTONDOWN,getButton);
+    registermousehandler(WM_RBUTTONDOWN,getButtonClick);
     writeText();
     closegraph();
     return 0;
