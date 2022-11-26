@@ -96,43 +96,69 @@ void windowsInit()
     drawIcons();
 }
 
-int x, y;
+
 char text[NMAX];
 int lgtext;
-char curr;
+double offsetHeight, offsetLength;
+double currWordLength=0;
+int currWordStart=0;
+int x=8, y;
 
-void writeText()
+void writeText(int left, int right)
 {
- ///functie pentru afisarea progresiva a textului
+ char curr;
+ setTextFont();
+ for (int i=left; i<=right; i++) {
+ offsetLength=textwidth(text+i);
+ offsetHeight=textheight(text+i);
+ curr=text[i];
+ if (curr==13)
+    {
+     y+=offsetHeight; x=8;
+     currWordLength=currWordStart=0;
+    }
+ else
+    {
+     if (x+lengthError*offsetLength+8<=winLength)
+        {
+         bgiout<<curr;
+         outstreamxy(x,y);
+         x+=lengthError*offsetLength;
+         currWordLength+=lengthError*offsetLength;
+         if (curr==32) {currWordLength=0; currWordStart=i+1; cout<<1;}
+        }
+     else if (currWordLength+lengthError*offsetLength+16>winLength)
+             {
+              y=y+offsetHeight; x=8;
+              bgiout<<curr;
+              outstreamxy(x,y);
+              x+=lengthError*offsetLength;
+              currWordLength=lengthError*offsetLength;
+              currWordStart=lgtext;
+             }
+          else
+              {
+               cleardevice();
+               drawIcons();
+               x=8, y=saveButton.buttonHeight+10;
+               currWordLength=0;
+               writeText(0,currWordStart-1);
+               y+=offsetHeight; x=8;
+               writeText(currWordStart,lgtext);
+               currWordLength+=lengthError*offsetLength;
+              }
+    }
+ }
 }
 
 void readText()
 {
-    y = saveButton.buttonHeight+10;
-    double offsetHeight;
-    double offsetLength;
-    setTextFont();
-    y = saveButton.buttonHeight+10;
-
+    char curr;
     curr=getch();
     while (curr!=27) ///escape
-    {
-        if (curr==13)
-        {
-            offsetHeight=textheight(&curr);
-            y=y+offsetHeight;
-            x=0;
-
-        }
-        else
-        {
-            ///afisez
-            bgiout<<curr;
-            outstreamxy(x,y);
-            offsetLength=textwidth(&curr);
-            x=x+lengthError*offsetLength;
-        }
-        text[lgtext++]=curr;
+    {   text[lgtext]=curr;
+        writeText(lgtext, lgtext);
+        lgtext++;
         curr=getch();
     }
 
@@ -141,6 +167,7 @@ void readText()
 int main()
 {
     windowsInit();
+    y=saveButton.buttonHeight+10;
     readText();
     closegraph();
     return 0;
