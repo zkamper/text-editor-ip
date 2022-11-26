@@ -70,12 +70,13 @@ void setTextFont(double &lengthError)
 
 void getButtonClick(int x, int y)
 {
-    Button listButtons[] = {copyButton,saveButton,pasteButton,fontButton};
-    for(Button b: listButtons)
+    Button b[] = {copyButton,saveButton,pasteButton,fontButton};
+    int buttCount = 4;
+    for(int i = 0 ; i < buttCount;i++)
     {
-        if(b.b.x <= x && x<=b.b.x + b.buttonWidth && b.b.y <= y && y<=b.b.y + b.buttonHeight)
-            cout<<b.text<<" ";
-        if(strcmp(b.text,"Font")==0)
+        if(b[i].b.x <= x && x<=b[i].b.x+b[i].buttonWidth && b[i].b.y <= y && y<=b[i].b.y+b[i].buttonHeight)
+            cout<<b[i].text<<" ";
+        if(strcmp(b[i].text,"Font")==0)
         {
             font=(font+1)%11;
             setTextFont(lengthError);
