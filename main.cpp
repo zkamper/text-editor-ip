@@ -104,51 +104,35 @@ double currWordLength=0;
 int currWordStart=0;
 int x=8, y;
 
-void writeText(int left, int right)
+void writeText()
 {
- char curr;
- setTextFont();
- for (int i=left; i<=right; i++) {
- offsetLength=textwidth(text+i);
- offsetHeight=textheight(text+i);
- curr=text[i];
- if (curr==13)
+    setfillstyle(0,COLOR(221,234,235));
+    setcolor(BLACK);
+    setTextFont();
+    bar(0,50,winLength,winHeight);
+    x=8,y=50;
+    for(int i = 0 ; i < lgtext; i ++)
     {
-     y+=offsetHeight; x=8;
-     currWordLength=currWordStart=0;
-    }
- else
-    {
-     if (x+lengthError*offsetLength+8<=winLength)
+        char curr[2];
+        curr[0]=text[i];
+        curr[1]='\0';
+        if(curr[0]==9)
         {
-         bgiout<<curr;
-         outstreamxy(x,y);
-         x+=lengthError*offsetLength;
-         currWordLength+=lengthError*offsetLength;
-         if (curr==32) {currWordLength=0; currWordStart=i+1; cout<<1;}
+            outtextxy(x,y,"   ");
+            x=x+textwidth("    ")*lengthError;
         }
-     else if (currWordLength+lengthError*offsetLength+16>winLength)
-             {
-              y=y+offsetHeight; x=8;
-              bgiout<<curr;
-              outstreamxy(x,y);
-              x+=lengthError*offsetLength;
-              currWordLength=lengthError*offsetLength;
-              currWordStart=lgtext;
-             }
-          else
-              {
-               cleardevice();
-               drawIcons();
-               x=8, y=saveButton.buttonHeight+10;
-               currWordLength=0;
-               writeText(0,currWordStart-1);
-               y+=offsetHeight; x=8;
-               writeText(currWordStart,lgtext);
-               currWordLength+=lengthError*offsetLength;
-              }
+        else if(curr[0]!=13 && x+textwidth(curr)<winLength)
+        {
+            outtextxy(x,y,curr);
+            x=x+textwidth(curr)*lengthError;
+        }
+        else
+        {
+            y=y+textheight(curr);
+            x=8;
+            outtextxy(x,y,curr);
+        }
     }
- }
 }
 
 void readText()
@@ -157,9 +141,10 @@ void readText()
     curr=getch();
     while (curr!=27) ///escape
     {   text[lgtext]=curr;
-        writeText(lgtext, lgtext);
         lgtext++;
+        writeText();
         curr=getch();
+        
     }
 
 }
