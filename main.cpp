@@ -49,7 +49,7 @@ void drawIcons()
 }
 
 int font=8; /// 8 - font recomandat, fara niciun offset
-void setTextFont(double &lengthError)
+void setTextFont()
 {lengthError=1;
  switch (font)
  {
@@ -107,7 +107,7 @@ void writeText()
     y = saveButton.buttonHeight+10;
     double offsetHeight;
     double offsetLength;
-    setTextFont(lengthError);
+    setTextFont();
     y = saveButton.buttonHeight+10;
 
     curr=getch();
