@@ -120,6 +120,9 @@ void write(int left, int right)
 
 void setPosChar(char curr)
 {setTextFont();
+ if(curr == 9)  ///9 = TAB aka indentare
+ text[lgtext].length=lengthError*textwidth("    ");
+ else
  text[lgtext].length=lengthError*textwidth(&curr);
  offsetHeight=textheight(&curr);
  if (curr==13)
@@ -128,7 +131,7 @@ void setPosChar(char curr)
      currWordStart=currWordLength=0;
      return;
     }
- if (curr==32)
+ if (curr==32 || curr==9) ///TAB pune 4 spatii, deci cred ca ar trebui inclus si el aici
     {
      x+=text[lgtext].length;
      currWordLength=0;
