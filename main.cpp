@@ -154,21 +154,23 @@ void getMouseHover(int x, int y)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99,110,109))
         {
+            cout<<"a";
             int prevColor = getcolor();
+            setlinestyle(0,0,3);
             setcolor(COLOR(99,110,109));
-            setlinestyle(0,0,3);
             rectangle(b[i].b.x+1,b[i].b.y+1,b[i].b.x+b[i].buttonWidth-1,b[i].b.y+b[i].buttonHeight-1);
-            refreshDisplay();
             setcolor(prevColor);
+            refreshDisplay();
         }
-        else
+        else if(x<= b[buttCount-1].b.x+b[buttCount-1].buttonWidth+5 && y<= b[buttCount-1].b.y+b[buttCount-1].buttonHeight+5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth && b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177,188,187))
         {
+            cout<<"c";
             int prevColor = getcolor();
-            setcolor(COLOR(177,188,187));
             setlinestyle(0,0,3);
+            setcolor(COLOR(177,188,187));
             rectangle(b[i].b.x+1,b[i].b.y+1,b[i].b.x+b[i].buttonWidth-1,b[i].b.y+b[i].buttonHeight-1);
-            refreshDisplay();
             setcolor(prevColor);
+            refreshDisplay();
         }
         
     }
@@ -198,6 +200,7 @@ void write(int left, int right)
         if (text[i].c != 32 && text[i].c != 13)
         {
             bgiout << text[i].c;
+            setcolor(BLACK);
             outstreamxy(text[i].x, text[i].y);
         }
 }

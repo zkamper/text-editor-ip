@@ -1,1 +1,1 @@
-setTextFont();
+b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth && b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight
