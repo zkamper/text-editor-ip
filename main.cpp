@@ -19,6 +19,7 @@ int lgtext;
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
+void getMouseHover(int x, int y);
 
 void drawIcons()
 {
@@ -58,7 +59,10 @@ void drawIcons()
     drawButton(fontButton);
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
+    registermousehandler(WM_MOUSEMOVE,getMouseHover);
 }
+
+
 
 
 void setTextFont()
@@ -131,6 +135,42 @@ void getButtonClick(int x, int y)
                 drawButton(fontButton);
             }
         }
+    }
+}
+
+void refreshDisplay()
+{
+    int oldv = getvisualpage();
+    int olda = getactivepage();
+    setvisualpage(olda);
+    setactivepage(oldv);
+}
+
+void getMouseHover(int x, int y)
+{
+    Button b[] = {copyButton, saveButton, pasteButton, fontButton};
+    int buttCount = 4;
+    for (int i = 0; i < buttCount; i++)
+    {
+        if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99,110,109))
+        {
+            int prevColor = getcolor();
+            setcolor(COLOR(99,110,109));
+            setlinestyle(0,0,3);
+            rectangle(b[i].b.x+1,b[i].b.y+1,b[i].b.x+b[i].buttonWidth-1,b[i].b.y+b[i].buttonHeight-1);
+            refreshDisplay();
+            setcolor(prevColor);
+        }
+        else
+        {
+            int prevColor = getcolor();
+            setcolor(COLOR(177,188,187));
+            setlinestyle(0,0,3);
+            rectangle(b[i].b.x+1,b[i].b.y+1,b[i].b.x+b[i].buttonWidth-1,b[i].b.y+b[i].buttonHeight-1);
+            refreshDisplay();
+            setcolor(prevColor);
+        }
+        
     }
 }
 
