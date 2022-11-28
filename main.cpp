@@ -7,6 +7,7 @@ using namespace std;
 
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton;
+int font = 8; /// 8 - font recomandat, fara niciun offset
 
 struct
 {
@@ -35,6 +36,8 @@ void drawIcons()
     pasteButton.text = "Paste";
     fontButton.text = "Font";
 
+    fontButton.font = font;
+
     saveButton.iconWidth = pasteButton.iconWidth = copyButton.iconWidth = 32;
     saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
 
@@ -57,7 +60,7 @@ void drawIcons()
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
 }
 
-int font = 8; /// 8 - font recomandat, fara niciun offset
+
 void setTextFont()
 {
     lengthError = 1;
@@ -124,6 +127,8 @@ void getButtonClick(int x, int y)
             {
                 font = (font + 1) % 11;
                 setTextFont();
+                fontButton.font = font;
+                drawButton(fontButton);
             }
         }
     }

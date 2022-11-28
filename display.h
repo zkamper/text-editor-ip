@@ -15,6 +15,7 @@ struct Button{
     int iconHeight = 0;
     char *text;
     int bkcolor;
+    int font = DEFAULT_FONT;
 };
 
 void drawButton(Button button){
@@ -26,7 +27,7 @@ void drawButton(Button button){
     int color = getcolor();
     setbkcolor(button.bkcolor);
     setcolor(COLOR(12,17,17));
-    settextstyle(DEFAULT_FONT,0,0);
+    settextstyle(button.font,0,0);
     if(button.icon != NULL && button.text !=NULL )
         outtextxy(button.b.x+button.buttonHeight,button.b.y+(button.buttonHeight-textheight(button.text))/2,button.text);
     else if(button.text != NULL)
