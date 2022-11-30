@@ -1,6 +1,7 @@
 #include <iostream>
 #include <winbgim.h>
 #include <graphics.h>
+#include <cmath>
 #include "display.h"
 #define NMAX 10000
 using namespace std;
@@ -8,6 +9,25 @@ using namespace std;
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton;
 int font = 8; /// 8 - font recomandat, fara niciun offset
+int winLength, winHeight;
+int bkColor = COLOR(221, 234, 235);      // Culoarea de fundal;
+int accentColor1 = COLOR(177, 187, 188); // Fundal butoane
+int accentColor2 = COLOR(99, 110, 109);  // Conturul de la hover la butoane
+int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
+
+int displayOffset = 0;
+int currDisplayOffset = 0;
+float barRaport;
+
+double offsetHeight, offsetLength;
+double currWordLength = 0;
+int currWordStart = 0;
+int x = 8, y;
+
+char *upArrow = "icons\\up.gif";
+char *downArrow = "icons\\down.gif";
+char *leftArrow = "icons\\left.gif";
+char *rightArrow = "icons\\right.gif";
 
 struct
 {
@@ -15,11 +35,29 @@ struct
     char c;
 } text[NMAX];
 
+struct row
+{
+    char *text;
+    int offsetLine;
+    int offsetCol;
+    int length;
+};
+
+struct editorConfig
+{
+    row row[100];
+    bool isWordWrap = false;
+    int maxRowLength;
+} editor;
+
 int lgtext;
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
 void getMouseHover(int x, int y);
+void debugFunct();
+void drawArrowsHorizontal();
+void drawHorizBar();
 
 void drawIcons()
 {
@@ -59,11 +97,65 @@ void drawIcons()
     drawButton(fontButton);
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
-    registermousehandler(WM_MOUSEMOVE,getMouseHover);
+    registermousehandler(WM_MOUSEMOVE, getMouseHover);
+}
+
+void drawHorizBar(){
+    setfillstyle(1,accentColor2);
+    float horizBarLength = (winLength-44)*barRaport;
+    bar(22+currDisplayOffset,winHeight-18,22+horizBarLength+currDisplayOffset,winHeight-2);
+}
+
+void drawArrowsHorizontal()
+{
+    setfillstyle(1, accentColor1);
+    bar(0, winHeight - 20, winLength, winHeight);
+    readimagefile(leftArrow, 0, winHeight - 20, 20, winHeight);
+    readimagefile(rightArrow, winLength - 20, winHeight - 20, winLength, winHeight);
+    drawHorizBar();
 }
 
 
 
+void displayRows()
+{
+    setfillstyle(1,bkColor);
+    bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
+    y = saveButton.buttonHeight + 10;
+    for (int i = 0; i < 3; i++)
+    {
+        outtextxy(x - currDisplayOffset, y, editor.row[i].text);
+        y += textheight(editor.row[i].text);
+    }
+    
+}
+
+void debugFunc()
+{
+    for (int i = 0; i < 10; i++)
+        editor.row[i].text = (char *)malloc(1000);
+    editor.row[0].text = "This is some text\n";
+    editor.row[1].text = "This is more text\n";
+    editor.row[2].text = "This is a very long string that will definetly not fit on the screen and I tell you this";
+    for (int i = 0; i < 3; i++)
+    {
+        if (textwidth(editor.row[i].text) - winLength > displayOffset)
+        {
+            displayOffset = textwidth(editor.row[i].text) - winLength + 8;
+            barRaport = (float)(winLength-8) / (winLength - 8 + displayOffset);
+        }
+    }
+    cout << displayOffset << " ";
+    setcolor(BLACK);
+    displayRows();
+    if (displayOffset > 0)
+        drawArrowsHorizontal();
+    char curr = getch();
+    while (curr != 27)
+    {
+        curr = getch();
+    }
+}
 
 void setTextFont()
 {
@@ -136,6 +228,20 @@ void getButtonClick(int x, int y)
             }
         }
     }
+    if(0<=x && x<=20 && winHeight-20<=y && y<=winHeight)
+    {
+        currDisplayOffset-=10;
+        currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
+        drawArrowsHorizontal();
+        displayRows();
+    }
+    if(winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
+    {
+        currDisplayOffset+=10;
+        currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
+        displayRows();
+        drawArrowsHorizontal();
+    }
 }
 
 void refreshDisplay()
@@ -152,44 +258,37 @@ void getMouseHover(int x, int y)
     int buttCount = 4;
     for (int i = 0; i < buttCount; i++)
     {
-        if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99,110,109))
+        if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
         {
             int prevColor = getcolor();
-            setlinestyle(0,0,3);
-            setcolor(COLOR(99,110,109));
-            rectangle(b[i].b.x+1,b[i].b.y+1,b[i].b.x+b[i].buttonWidth-1,b[i].b.y+b[i].buttonHeight-1);
+            setlinestyle(0, 0, 3);
+            setcolor(COLOR(99, 110, 109));
+            rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
             setcolor(prevColor);
             refreshDisplay();
         }
-        else if(x<= b[buttCount-1].b.x+b[buttCount-1].buttonWidth+5 && y<= b[buttCount-1].b.y+b[buttCount-1].buttonHeight+5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth || b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177,188,187))
+        else if (x <= b[buttCount - 1].b.x + b[buttCount - 1].buttonWidth + 5 && y <= b[buttCount - 1].b.y + b[buttCount - 1].buttonHeight + 5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth || b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177, 188, 187))
         {
             int prevColor = getcolor();
-            setlinestyle(0,0,3);
-            setcolor(COLOR(177,188,187));
-            rectangle(b[i].b.x+1,b[i].b.y+1,b[i].b.x+b[i].buttonWidth-1,b[i].b.y+b[i].buttonHeight-1);
+            setlinestyle(0, 0, 3);
+            setcolor(COLOR(177, 188, 187));
+            rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
             setcolor(prevColor);
             refreshDisplay();
         }
-        
     }
 }
 
-int winLength, winHeight;
 void windowsInit()
 {
     /// initializare fereastra
     winLength = 1280;
     winHeight = 720;
     initwindow(winLength, winHeight, "Notepad^2");
-    setbkcolor(COLOR(221, 234, 235));
+    setbkcolor(bkColor);
     cleardevice();
     drawIcons();
 }
-
-double offsetHeight, offsetLength;
-double currWordLength = 0;
-int currWordStart = 0;
-int x = 8, y;
 
 void write(int left, int right)
 {
@@ -287,7 +386,8 @@ int main()
 {
     windowsInit();
     y = saveButton.buttonHeight + 10;
-    readText();
+    debugFunc();
+    // readText();
     closegraph();
     return 0;
 }
