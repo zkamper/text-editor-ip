@@ -17,7 +17,7 @@ int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
 
 int displayOffset = 0;
 int currDisplayOffset = 0;
-float barRaport;
+double barRaport;
 
 double offsetHeight, offsetLength;
 double currWordLength = 0;
@@ -102,8 +102,9 @@ void drawIcons()
 
 void drawHorizBar(){
     setfillstyle(1,accentColor2);
-    float horizBarLength = (float)(winLength-58)*barRaport;
-    bar(22+currDisplayOffset*barRaport,winHeight-18,22+horizBarLength+currDisplayOffset*barRaport,winHeight-2);
+    int horizBarLength = (double)(winLength-46)*barRaport;
+    int barDisplayOffset = (double)(currDisplayOffset) * barRaport; // Raporturile nu sunt cele care trebuie, needs fixing
+    bar(22+barDisplayOffset,winHeight-18,22+horizBarLength+barDisplayOffset,winHeight-2);
 }
 
 void drawArrowsHorizontal()
@@ -136,16 +137,15 @@ void debugFunc()
         editor.row[i].text = (char *)malloc(1000);
     editor.row[0].text = "This is some text\n";
     editor.row[1].text = "This is more text\n";
-    editor.row[2].text = "This is a very long string that will definetly not fit on the screen and I tell you this";
+    editor.row[2].text = "This is a very long string and it contains a lot of characters wdagaegaga";
     for (int i = 0; i < 3; i++)
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
-            displayOffset = textwidth(editor.row[i].text) - winLength;
-            barRaport = (float)(winLength) / (winLength + displayOffset);
+            displayOffset = textwidth(editor.row[i].text) - winLength + 8;
+            barRaport = (double)(winLength-8) / (winLength + displayOffset);
         }
     }
-    cout << displayOffset << " ";
     setcolor(BLACK);
     displayRows();
     if (displayOffset > 0)
@@ -228,16 +228,16 @@ void getButtonClick(int x, int y)
             }
         }
     }
-    if(0<=x && x<=20 && winHeight-20<=y && y<=winHeight)
+    if(displayOffset > 0 && 0<=x && x<=20 && winHeight-20<=y && y<=winHeight)
     {
-        currDisplayOffset-=10;
+        currDisplayOffset-=150;
         currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
     }
-    if(winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
+    if(displayOffset > 0 && winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
     {
-        currDisplayOffset+=10;
+        currDisplayOffset+=150;
         currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
