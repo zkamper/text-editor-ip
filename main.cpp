@@ -218,7 +218,7 @@ void setPosChar(char curr)
         currWordStart = currWordLength = 0;
         return;
     }
-    if (curr == 32 || curr == 9) /// TAB pune 4 spatii, deci cred ca ar trebui inclus si el aici
+    if (curr == 32 || curr == 9) /// TAB pune 4 spatii, deci cred ca ar trebui inclus si el aici a
     {
         x += text[lgtext].length;
         currWordLength = 0;
