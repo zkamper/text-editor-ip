@@ -102,8 +102,8 @@ void drawIcons()
 
 void drawHorizBar(){
     setfillstyle(1,accentColor2);
-    float horizBarLength = (winLength-44)*barRaport;
-    bar(22+currDisplayOffset,winHeight-18,22+horizBarLength+currDisplayOffset,winHeight-2);
+    float horizBarLength = (float)(winLength-58)*barRaport;
+    bar(22+currDisplayOffset*barRaport,winHeight-18,22+horizBarLength+currDisplayOffset*barRaport,winHeight-2);
 }
 
 void drawArrowsHorizontal()
@@ -141,8 +141,8 @@ void debugFunc()
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
-            displayOffset = textwidth(editor.row[i].text) - winLength + 8;
-            barRaport = (float)(winLength-8) / (winLength - 8 + displayOffset);
+            displayOffset = textwidth(editor.row[i].text) - winLength;
+            barRaport = (float)(winLength) / (winLength + displayOffset);
         }
     }
     cout << displayOffset << " ";
@@ -232,8 +232,8 @@ void getButtonClick(int x, int y)
     {
         currDisplayOffset-=10;
         currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
-        drawArrowsHorizontal();
         displayRows();
+        drawArrowsHorizontal();
     }
     if(winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
     {
