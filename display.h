@@ -17,6 +17,22 @@ struct Button{
     int bkcolor;
     int font = DEFAULT_FONT;
     int textColor = COLOR(12,17,17);
+    
+};
+
+struct Toggle{
+    Point b;
+    int radius;
+    Point center;
+    char *text;
+    int font = DEFAULT_FONT;
+    int textColor = COLOR(12,17,17);
+    int textBk = COLOR(221, 234, 235);
+    int toggleWidth = 0;
+    int toggleHeight = 0;
+    int bkcolor;
+    int oncolor;
+    bool isSet = false;
 };
 
 void drawButton(Button button){
@@ -35,6 +51,26 @@ void drawButton(Button button){
     {
         outtextxy(button.b.x+button.buttonWidth/2-textwidth(button.text)/2,button.b.y+button.buttonHeight/2-textheight(button.text)/2,button.text);
     }
+    setbkcolor(bkColor);
+    setcolor(color);
+}
+
+void drawToggle(Toggle toggle){
+    int bkColor = getbkcolor();
+    int color = getcolor();
+    setcolor(toggle.bkcolor);
+    setfillstyle(1,toggle.bkcolor);
+    fillellipse(toggle.b.x+toggle.radius+5,toggle.b.y+toggle.toggleHeight/2,toggle.radius,toggle.radius);
+    if(toggle.isSet == true)
+    {
+        setcolor(toggle.oncolor);
+        setfillstyle(1,toggle.oncolor);
+        fillellipse(toggle.b.x+toggle.radius+5,toggle.b.y+toggle.toggleHeight/2,toggle.radius*0.75,toggle.radius*0.75);
+    }
+    setcolor(toggle.textColor);
+    settextstyle(toggle.font,0,0);
+    if(toggle.text != NULL)
+        outtextxy(toggle.b.x+10+2*toggle.radius,toggle.b.y+(toggle.toggleHeight-textheight(toggle.text))/2,toggle.text);
     setbkcolor(bkColor);
     setcolor(color);
 }

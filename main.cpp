@@ -8,6 +8,7 @@ using namespace std;
 
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton;
+Toggle wordWrap;
 int font = 8; /// 8 - font recomandat, fara niciun offset
 int winLength, winHeight;
 int bkColor = COLOR(221, 234, 235);      // Culoarea de fundal;
@@ -18,6 +19,7 @@ int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
 int displayOffset = 0;
 int currDisplayOffset = 0;
 double barRaport;
+int currBarOffset = 0;
 
 double offsetHeight, offsetLength;
 double currWordLength = 0;
@@ -61,6 +63,16 @@ void drawHorizBar();
 
 void drawIcons()
 {
+    wordWrap.toggleHeight = 40;
+    wordWrap.radius = 8;
+    wordWrap.text = "WordWrap";
+    wordWrap.bkcolor = accentColor1;
+    wordWrap.oncolor = accentColor2;
+    wordWrap.isSet;
+    wordWrap.toggleWidth = wordWrap.radius*2+textwidth(wordWrap.text)+15;
+
+    
+
     saveButton.bkcolor = COLOR(177, 187, 188);
     copyButton.bkcolor = COLOR(177, 187, 188);
     pasteButton.bkcolor = COLOR(177, 187, 188);
@@ -88,13 +100,20 @@ void drawIcons()
     copyButton.b.x = saveButton.b.x + saveButton.buttonWidth + offset;
     pasteButton.b.x = copyButton.b.x + copyButton.buttonWidth + offset;
     fontButton.b.x = pasteButton.b.x + pasteButton.buttonWidth + offset;
+    wordWrap.b.x = fontButton.b.x + fontButton.buttonWidth + offset*3;
 
-    saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = offset;
+    saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
+
+    wordWrap.center.x = wordWrap.b.x+wordWrap.radius+5;
+    wordWrap.center.y = wordWrap.b.y+wordWrap.toggleHeight/2;
+
+    drawToggle(wordWrap);
 
     drawButton(saveButton);
     drawButton(copyButton);
     drawButton(pasteButton);
     drawButton(fontButton);
+    
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
@@ -102,8 +121,8 @@ void drawIcons()
 
 void drawHorizBar(){
     setfillstyle(1,accentColor2);
-    int horizBarLength = (double)(winLength-46)*barRaport;
-    int barDisplayOffset = (double)(currDisplayOffset) * barRaport; // Raporturile nu sunt cele care trebuie, needs fixing
+    int horizBarLength = (double)(winLength-28)*barRaport;
+    int barDisplayOffset = (double)(currDisplayOffset) * (winLength-46)/(winLength+displayOffset+8);
     bar(22+barDisplayOffset,winHeight-18,22+horizBarLength+barDisplayOffset,winHeight-2);
 }
 
@@ -137,13 +156,13 @@ void debugFunc()
         editor.row[i].text = (char *)malloc(1000);
     editor.row[0].text = "This is some text\n";
     editor.row[1].text = "This is more text\n";
-    editor.row[2].text = "This is a very long string and it contains a lot of characters wdagaegaga";
+    editor.row[2].text = "This is a very lonbgsrbgsebgsbgbsgsbfjhgsf   asfasfasfsafa   asgsegasbtabrsbtyrasny   rdsnydsrnydsrnysdrnydsrnyss";
     for (int i = 0; i < 3; i++)
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
-            displayOffset = textwidth(editor.row[i].text) - winLength + 8;
-            barRaport = (double)(winLength-8) / (winLength + displayOffset);
+            displayOffset = textwidth(editor.row[i].text) - winLength + 29;  // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll orizontal
+            barRaport = (double)(winLength-29) / (winLength + displayOffset-29);
         }
     }
     setcolor(BLACK);
@@ -230,17 +249,23 @@ void getButtonClick(int x, int y)
     }
     if(displayOffset > 0 && 0<=x && x<=20 && winHeight-20<=y && y<=winHeight)
     {
-        currDisplayOffset-=150;
+        currDisplayOffset-=300;
         currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
     }
     if(displayOffset > 0 && winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
     {
-        currDisplayOffset+=150;
+        currDisplayOffset+=300;
         currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
+    }
+    if(wordWrap.center.x-wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
+    {
+        wordWrap.isSet = 1-wordWrap.isSet;
+        editor.isWordWrap = wordWrap.isSet;
+        drawToggle(wordWrap);
     }
 }
 
@@ -288,6 +313,9 @@ void windowsInit()
     setbkcolor(bkColor);
     cleardevice();
     drawIcons();
+    setcolor(accentColor2);
+    setlinestyle(0,0,2);
+    line(0,saveButton.buttonHeight+9,winLength,saveButton.buttonHeight+9);
 }
 
 void write(int left, int right)
