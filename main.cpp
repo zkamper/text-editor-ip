@@ -164,10 +164,10 @@ void displayRows()
     setviewport(0,saveButton.buttonHeight+10,winLength,winHeight,1);
     setfillstyle(1,bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
-    y = saveButton.buttonHeight + 10;
+    y = 0;
     for (int i = 0; i < editor.rowCount; i++)
     {
-        outtextxy(x - currDisplayOffset, y-currDisplayOffset2-saveButton.buttonHeight-10, editor.row[i].text);
+        outtextxy(x - currDisplayOffset, y-currDisplayOffset2, editor.row[i].text);
         y += textheight(editor.row[i].text);
     }
     setviewport(0,0,winLength,winHeight,1);
@@ -303,7 +303,7 @@ void getButtonClick(int x, int y)
     }
     if(displayOffset > 0 && 0<=x && x<=20 && winHeight-20<=y && y<=winHeight)
     {
-        currDisplayOffset-=300;
+        currDisplayOffset-=10;
         currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
@@ -311,28 +311,29 @@ void getButtonClick(int x, int y)
     }
     if(displayOffset > 0 && winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
     {
-        currDisplayOffset+=300;
+        currDisplayOffset+=10;
         currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
         drawArrowsVertical();
     }
-    if(displayOffset2 > 0 && winLength-20<=x && x <= winLength && saveButton.buttonHeight+10 <= y && y <= saveButton.buttonHeight+30);
+    if(displayOffset2 > 0 && (winLength-20)<=x && x <= winLength && (saveButton.buttonHeight+10) <= y && y <= (saveButton.buttonHeight + 30))
     {
-        currDisplayOffset2-=40;
+        currDisplayOffset2-=10;
         currDisplayOffset2 = (currDisplayOffset2<0)?0:currDisplayOffset2;
         displayRows();
         drawArrowsHorizontal();
         drawArrowsVertical();
     }
-    if(displayOffset2 > 0 && winLength-20<=x && x <= winLength && winHeight-40 <= y && y<= winHeight-20) 
+    if(displayOffset2 > 0 && (winLength-20) <= x && x <= winLength && (winHeight-40) <= y && y <= (winHeight-20))
     {
-        currDisplayOffset2+=40;
+        currDisplayOffset2 += 10;
         currDisplayOffset2 = (currDisplayOffset2>displayOffset2)?displayOffset2:currDisplayOffset2;
         displayRows();
         drawArrowsHorizontal();
         drawArrowsVertical();
-    }
+    } 
+    
     if(wordWrap.center.x-wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
     {
         wordWrap.isSet = 1-wordWrap.isSet;
