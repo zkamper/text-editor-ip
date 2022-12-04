@@ -36,9 +36,11 @@ char *rightArrow = "icons\\right.gif";
 
 struct
 {
-    int x, y, length;
+    int x, y;
+    double length;
     char c;
 } text[NMAX];
+int lgtext=0;
 
 struct row
 {
@@ -46,17 +48,17 @@ struct row
     int offsetLine;
     int offsetCol;
     int length;
+    int index;
 };
 
 struct editorConfig
 {
     row row[100];
+    int currRow=0;
     bool isWordWrap = false;
     int maxRowLength;
     int rowCount = 0;
 } editor;
-
-int lgtext;
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
@@ -75,7 +77,7 @@ void drawIcons()
     wordWrap.isSet;
     wordWrap.toggleWidth = wordWrap.radius*2+textwidth(wordWrap.text)+15;
 
-    
+
 
     saveButton.bkcolor = COLOR(177, 187, 188);
     copyButton.bkcolor = COLOR(177, 187, 188);
@@ -117,7 +119,7 @@ void drawIcons()
     drawButton(copyButton);
     drawButton(pasteButton);
     drawButton(fontButton);
-    
+
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
@@ -157,6 +159,8 @@ void drawArrowsVertical()
 
 void displayRows()
 {
+    setfillstyle(1,bkColor);
+    bar(0,saveButton.buttonHeight+11,winLength,winHeight);
     setviewport(0,saveButton.buttonHeight+10,winLength,winHeight,1);
     setfillstyle(1,bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
@@ -260,7 +264,7 @@ void setTextFont()
         lengthError = 1;
         break;
     case 8:
-        settextstyle(COMPLEX_FONT, 0, 20);
+        settextstyle(COMPLEX_FONT, 0, 10);
         lengthError = 1;
         break;
     case 9:
@@ -398,22 +402,23 @@ void write(int left, int right)
         }
 }
 
-void setPosChar(char curr)
+void setPosChar(char *curr)
 {
     setTextFont();
-    if (curr == 9) /// 9 = TAB aka indentare
+    if (*curr == 9) /// 9 = TAB aka indentare
         text[lgtext].length = lengthError * textwidth("    ");
     else
-        text[lgtext].length = lengthError * textwidth(&curr);
-    offsetHeight = textheight(&curr);
-    if (curr == 13)
+        text[lgtext].length = lengthError * (textwidth(curr)/2);
+
+    offsetHeight = textheight(curr);
+    if (*curr == 13)
     {
         y += offsetHeight;
         x = 8;
         currWordStart = currWordLength = 0;
         return;
     }
-    if (curr == 32 || curr == 9) /// TAB pune 4 spatii, deci cred ca ar trebui inclus si el aici
+    if (*curr == 32 || *curr == 9) /// TAB pune 4 spatii, deci cred ca ar trebui inclus si el aici
     {
         x += text[lgtext].length;
         currWordLength = 0;
@@ -422,7 +427,8 @@ void setPosChar(char curr)
     }
     if (x + text[lgtext].length + 8 <= winLength)
     {
-        bgiout << curr;
+
+        bgiout << *curr;
         outstreamxy(x, y);
 
         text[lgtext].x = x;
@@ -436,7 +442,7 @@ void setPosChar(char curr)
         y = y + offsetHeight;
         x = 8;
 
-        bgiout << curr;
+        bgiout << *curr;
         outstreamxy(x, y);
 
         text[lgtext].x = x;
@@ -467,12 +473,18 @@ void setPosChar(char curr)
 
 void readText()
 {
+    for (int i = 0; i < 100; i++)
+         editor.row[i].text = (char *)malloc(1000);
     char curr;
     curr = getch();
     while (curr != 27) /// escape
     {
         text[lgtext].c = curr;
-        setPosChar(curr);
+        editor.row[editor.currRow].text[editor.row[editor.currRow].index] = curr;
+
+        setPosChar(&curr);
+
+        editor.row[editor.currRow].index++;
         lgtext++;
         curr = getch();
     }
