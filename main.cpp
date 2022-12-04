@@ -16,10 +16,13 @@ int accentColor1 = COLOR(177, 187, 188); // Fundal butoane
 int accentColor2 = COLOR(99, 110, 109);  // Conturul de la hover la butoane
 int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
 
-int displayOffset = 0;
-int currDisplayOffset = 0;
+double displayOffset = 0;
+double displayOffset2 = 0;
+double currDisplayOffset = 0;
+double currDisplayOffset2 = 0;
 double barRaport;
-int currBarOffset = 0;
+double barRaport2;
+double currBarOffset = 0;
 
 double offsetHeight, offsetLength;
 double currWordLength = 0;
@@ -39,7 +42,7 @@ struct
 
 struct row
 {
-    char *text;
+    char *text = "";
     int offsetLine;
     int offsetCol;
     int length;
@@ -50,6 +53,7 @@ struct editorConfig
     row row[100];
     bool isWordWrap = false;
     int maxRowLength;
+    int rowCount = 0;
 } editor;
 
 int lgtext;
@@ -126,6 +130,13 @@ void drawHorizBar(){
     bar(22+barDisplayOffset,winHeight-18,22+horizBarLength+barDisplayOffset,winHeight-2);
 }
 
+void drawVerticalBar(){
+    setfillstyle(1,accentColor2);
+    int verticalBarLength = (double)(winHeight-saveButton.buttonHeight-10-63)*barRaport2;
+    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight-46)/(winHeight+displayOffset2+saveButton.buttonHeight+10);
+    bar(winLength-18,saveButton.buttonHeight+31+barDisplayOffset,winLength-2,saveButton.buttonHeight+31+barDisplayOffset+verticalBarLength);
+}
+
 void drawArrowsHorizontal()
 {
     setfillstyle(1, accentColor1);
@@ -135,18 +146,27 @@ void drawArrowsHorizontal()
     drawHorizBar();
 }
 
-
+void drawArrowsVertical()
+{
+    setfillstyle(1, accentColor1);
+    bar(winLength-20, saveButton.buttonHeight+10, winLength, winHeight-21);
+    readimagefile(upArrow,winLength-20,saveButton.buttonHeight+10,winLength,saveButton.buttonHeight+30);
+    readimagefile(downArrow,winLength-20,winHeight-41,winLength,winHeight-21);
+    drawVerticalBar();
+}
 
 void displayRows()
 {
+    setviewport(0,saveButton.buttonHeight+10,winLength,winHeight,1);
     setfillstyle(1,bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
     y = saveButton.buttonHeight + 10;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < editor.rowCount; i++)
     {
-        outtextxy(x - currDisplayOffset, y, editor.row[i].text);
+        outtextxy(x - currDisplayOffset, y-currDisplayOffset2-saveButton.buttonHeight-10, editor.row[i].text);
         y += textheight(editor.row[i].text);
     }
+    setviewport(0,0,winLength,winHeight,1);
     
 }
 
@@ -157,18 +177,48 @@ void debugFunc()
     editor.row[0].text = "This is some text\n";
     editor.row[1].text = "This is more text\n";
     editor.row[2].text = "This is a very lonbgsrbgsebgsbgbsgsbfjhgsf   asfasfasfsafa   asgsegasbtabrsbtyrasny   rdsnydsrnydsrnysdrnydsrnyss";
-    for (int i = 0; i < 3; i++)
+    editor.row[3].text = "row";
+    editor.row[4].text = "row";
+    editor.row[5].text = "row";
+    editor.row[6].text = "row";
+    editor.row[7].text = "row";
+    editor.row[8].text = "row";
+    editor.row[9].text = "row";
+    editor.row[10].text = "row";
+    editor.row[11].text = "row";
+    editor.row[12].text = "row";
+    editor.row[13].text = "row";
+    editor.row[14].text = "row";
+    editor.row[15].text = "row";
+    editor.row[16].text = "row";
+    editor.row[17].text = "row";
+    editor.row[18].text = "row";
+    editor.row[19].text = "row";
+    editor.row[20].text = "row152";
+    editor.row[21].text = "row152";
+    editor.row[22].text = "row152";
+    editor.row[23].text = "row152";
+    editor.row[24].text = "row152";
+    editor.rowCount = 25;
+    for (int i = 0; i < 25; i++)
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
-            displayOffset = textwidth(editor.row[i].text) - winLength + 29;  // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll orizontal
+            displayOffset = textwidth(editor.row[i].text) - winLength + 29;  // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
             barRaport = (double)(winLength-29) / (winLength + displayOffset-29);
         }
+    }
+    if(editor.rowCount * textheight(editor.row[0].text) > winHeight-saveButton.buttonHeight-31);
+    {
+        displayOffset2 = editor.rowCount * textheight(editor.row[0].text)-winHeight+saveButton.iconHeight+31;
+        barRaport2 = (double)( winHeight-saveButton.buttonHeight-31)/( winHeight-saveButton.buttonHeight-31+displayOffset2);
     }
     setcolor(BLACK);
     displayRows();
     if (displayOffset > 0)
         drawArrowsHorizontal();
+    if (displayOffset2 > 0)
+        drawArrowsVertical();
     char curr = getch();
     while (curr != 27)
     {
@@ -253,6 +303,7 @@ void getButtonClick(int x, int y)
         currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
+        drawArrowsVertical();
     }
     if(displayOffset > 0 && winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
     {
@@ -260,6 +311,23 @@ void getButtonClick(int x, int y)
         currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
+        drawArrowsVertical();
+    }
+    if(displayOffset2 > 0 && winLength-20<=x && x <= winLength && saveButton.buttonHeight+10 <= y && y <= saveButton.buttonHeight+30);
+    {
+        currDisplayOffset2-=40;
+        currDisplayOffset2 = (currDisplayOffset2<0)?0:currDisplayOffset2;
+        displayRows();
+        drawArrowsHorizontal();
+        drawArrowsVertical();
+    }
+    if(displayOffset2 > 0 && winLength-20<=x && x <= winLength && winHeight-40 <= y && y<= winHeight-20) 
+    {
+        currDisplayOffset2+=40;
+        currDisplayOffset2 = (currDisplayOffset2>displayOffset2)?displayOffset2:currDisplayOffset2;
+        displayRows();
+        drawArrowsHorizontal();
+        drawArrowsVertical();
     }
     if(wordWrap.center.x-wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
     {
@@ -415,7 +483,7 @@ int main()
     windowsInit();
     y = saveButton.buttonHeight + 10;
     debugFunc();
-    // readText();
+    //readText();
     closegraph();
     return 0;
 }
