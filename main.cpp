@@ -168,7 +168,7 @@ void drawVerticalBar()
 
 void drawArrowsHorizontal()
 {
-    
+
     setfillstyle(1, accentColor1);
     bar(0, winHeight - 20, winLength, winHeight);
     readimagefile(leftArrow, 0, winHeight - 20, 20, winHeight);
@@ -178,7 +178,7 @@ void drawArrowsHorizontal()
 
 void drawArrowsVertical()
 {
-    
+
     setfillstyle(1, accentColor1);
     bar(winLength - 20, saveButton.buttonHeight + 10, winLength, winHeight - 21);
     readimagefile(upArrow, winLength - 20, saveButton.buttonHeight + 10, winLength, saveButton.buttonHeight + 30);
@@ -242,7 +242,7 @@ void displayRows()
 
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
-    
+
 }
 
 void debugFunc()
@@ -592,7 +592,19 @@ void wordWrapAll()
         for (right=left; right<lg; right++)
             {
              p=subStr(alltext,left,right);
-             cout<<textwidth(p)<<'\n';
+             if (alltext[right]=='\n' || alltext[right]==' ' || right==lg-1)
+                {
+                 ///enter, spatiu sau finalul stringului mare
+                 if (textwidth(editorWrap.row[cursor.lin].text) + textwidth(subStr(p,0,strlen(p)-2)) + 29 <= winLength)
+                     strcat(editorWrap.row[cursor.lin].text,p);
+                 else
+                    {
+                     cursor.lin++;
+                     strcpy(editorWrap.row[cursor.lin].text,p);
+                    }
+                 if (alltext[right]=='\n') cursor.lin++;
+                 break;
+                }
              if (textwidth(p) + 29 > winLength)
                 {///cuv mai mare decat tot randul
                  if (editorWrap.row[cursor.lin].text[0]) cursor.lin++;
@@ -601,19 +613,6 @@ void wordWrapAll()
                  cursor.lin++;
                  editorWrap.row[cursor.lin].text[0]=alltext[right];
                  editorWrap.row[cursor.lin].text[1]=0;
-                 break;
-                }
-             if (alltext[right]=='\n' || alltext[right]==' ' || right==lg-1)
-                {
-                 ///enter, spatiu sau finalul stringului mare
-                 if (textwidth(editorWrap.row[cursor.lin].text) + textwidth(p) + 29 <= winLength)
-                     strcat(editorWrap.row[cursor.lin].text,p);
-                 else
-                    {
-                     cursor.lin++;
-                     strcpy(editorWrap.row[cursor.lin].text,p);
-                    }
-                 if (alltext[right]='\n') cursor.lin++;
                  break;
                 }
             }
