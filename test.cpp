@@ -1,9 +1,9 @@
 #include <iostream>
-
+#include <graphics.h>
 using namespace std;
 
 int main()
 {
-    cout<<"123456789101112\rsuprascrie"<<endl; //Cu CR
-    cout<<"123456789101112\nsuprascrie"; //CU LF (Line feed)
+    cout<<"Hello world\n";
+    return 0;
 }

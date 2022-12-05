@@ -6,6 +6,7 @@
 #include "siruri.h"
 #define NMAX 10000
 #include <fstream>
+#include <stdio.h>
 using namespace std;
 
 ofstream fout("dd.txt");
@@ -74,6 +75,25 @@ void debugFunct();
 void drawArrowsHorizontal();
 void drawHorizBar();
 void wordWrapAll();
+void displayRows();
+
+void openTxt(char* location){
+    if(location == NULL)
+        return;
+    else
+    {
+        printf("Opened %s",location);
+        FILE* myFile = fopen(location,"r");
+        while(!feof(myFile))
+        {
+            fgets(editor.row[cursor.lin].text,1000,myFile);
+            cursor.lin++;
+            editor.rowCount++;
+        }
+        cursor.col = strlen(editor.row[cursor.lin-1].text);
+    }
+    displayRows();
+}
 
 void drawIcons()
 {
@@ -148,7 +168,7 @@ void drawVerticalBar()
 
 void drawArrowsHorizontal()
 {
-    (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    
     setfillstyle(1, accentColor1);
     bar(0, winHeight - 20, winLength, winHeight);
     readimagefile(leftArrow, 0, winHeight - 20, 20, winHeight);
@@ -158,12 +178,20 @@ void drawArrowsHorizontal()
 
 void drawArrowsVertical()
 {
-    (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+    
     setfillstyle(1, accentColor1);
     bar(winLength - 20, saveButton.buttonHeight + 10, winLength, winHeight - 21);
     readimagefile(upArrow, winLength - 20, saveButton.buttonHeight + 10, winLength, saveButton.buttonHeight + 30);
     readimagefile(downArrow, winLength - 20, winHeight - 41, winLength, winHeight - 21);
     drawVerticalBar();
+}
+
+void drawBar()
+{
+    if (displayOffset > 0)
+        drawArrowsHorizontal();
+    if (displayOffset2 > 0)
+        drawArrowsVertical();
 }
 
 void calculateBar()
@@ -180,16 +208,10 @@ void calculateBar()
     }
     // cout<< textheight(editor.row[0].text);
     if (editor.rowCount * textheight(editor.row[0].text) > winHeight - saveButton.buttonHeight - 31)
-        ;
     {
         displayOffset2 = editor.rowCount * textheight(editor.row[0].text) - winHeight + saveButton.iconHeight + 31;
         barRaport2 = (double)(winHeight - saveButton.buttonHeight - 31) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
     }
-
-    if (displayOffset > 0)
-        drawArrowsHorizontal();
-    if (displayOffset2 > 0)
-        drawArrowsVertical();
 }
 
 void setTextFont();
@@ -199,6 +221,9 @@ void displayRows()
     int x = 8, y = 0;
     setTextFont();
     setfillstyle(1, bkColor);
+    calculateBar();
+    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
     setviewport(0, saveButton.buttonHeight + 10, winLength, winHeight, 1);
     for (int i = 0; i < editor.rowCount; i++)
@@ -207,7 +232,8 @@ void displayRows()
         y += textheight(editor.row[i].text);
     }
     setviewport(0, 0, winLength, winHeight, 1);
-    calculateBar();
+    drawBar();
+    
 }
 
 void debugFunc()
@@ -249,7 +275,6 @@ void debugFunc()
         }
     }
     if (editor.rowCount * textheight(editor.row[0].text) > winHeight - saveButton.buttonHeight - 31)
-        ;
     {
         displayOffset2 = editor.rowCount * textheight(editor.row[0].text) - winHeight + saveButton.iconHeight + 31;
         barRaport2 = (double)(winHeight - saveButton.buttonHeight - 31) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
@@ -322,8 +347,11 @@ void setTextFont()
 
 void shiftLeft()
 {
+    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+    int shiftBy = displayOffset/30;
     if(currDisplayOffset>=0 && currDisplayOffset<=displayOffset)
-    {currDisplayOffset -= 10;
+    {currDisplayOffset -= shiftBy;
     currDisplayOffset = (currDisplayOffset < 0) ? 0 : currDisplayOffset;
     displayRows();
     }
@@ -331,24 +359,33 @@ void shiftLeft()
 
 void shiftRight()
 {
+    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+    int shiftBy = displayOffset/30;
     if(currDisplayOffset>=0 && currDisplayOffset<=displayOffset)
-    {currDisplayOffset += 10;
+    {currDisplayOffset += shiftBy;
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     displayRows();}
 }
 
 void shiftUp()
 {
+    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+    int shiftBy = displayOffset2/30;
     if(currDisplayOffset2>=0 && currDisplayOffset2<=displayOffset2)
-    {currDisplayOffset2 -= 10;
+    {currDisplayOffset2 -= shiftBy;
     currDisplayOffset2 = (currDisplayOffset2 < 0) ? 0 : currDisplayOffset2;
     displayRows();}
 }
 
 void shiftDown()
 {
+    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+    int shiftBy = displayOffset2/30;
     if(currDisplayOffset2>=0 && currDisplayOffset2<=displayOffset2)
-    {currDisplayOffset2 += 10;
+    {currDisplayOffset2 += shiftBy;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
     displayRows();}
 }
@@ -438,6 +475,7 @@ void windowsInit()
     setcolor(accentColor2);
     setlinestyle(0, 0, 2);
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
+    refreshDisplay();
 }
 
 void write(int left, int right)
@@ -538,17 +576,19 @@ void wordWrapAll()
         //     }
 }
 
-void readText()
+void readText(char *location)
 {
     for (int i = 0; i < 100; i++)
     {
         editor.row[i].text = (char *)malloc(1000);
         editor.row[i].text[0] = '\0';
     }
+    openTxt(location);
     char curr;
     curr = getch();
     while (curr != 27) /// escape
     {
+        fflush(stdin);
         if (curr == KEY_UP) shiftUp();
         else if (curr == KEY_DOWN) shiftDown();
         else if (curr == KEY_LEFT) shiftLeft();
@@ -583,11 +623,11 @@ void readText()
     }
 }
 
-int main()
+int main(int argn, char* argc[])
 {
     windowsInit();
     // debugFunc();
-    readText();
+    readText(argc[1]);
     closegraph();
     return 0;
 }
