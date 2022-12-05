@@ -160,7 +160,7 @@ void drawArrowsVertical()
 void displayRows()
 {
     setfillstyle(1,bkColor);
-    bar(0,saveButton.buttonHeight+11,winLength,winHeight);
+    bar(0,saveButton.buttonHeight+10,winLength,winHeight);
     setviewport(0,saveButton.buttonHeight+10,winLength,winHeight,1);
     setfillstyle(1,bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
@@ -184,20 +184,20 @@ void debugFunc()
     editor.row[3].text = "row";
     editor.row[4].text = "row";
     editor.row[5].text = "row";
-    editor.row[6].text = "row";
+    editor.row[6].text = "row another very long row that i think will not fit on the screen";
     editor.row[7].text = "row";
     editor.row[8].text = "row";
-    editor.row[9].text = "row";
+    editor.row[9].text = "rowantgeantgeasnt";
     editor.row[10].text = "row";
-    editor.row[11].text = "row";
+    editor.row[11].text = "rowfageageeagb aes";
     editor.row[12].text = "row";
     editor.row[13].text = "row";
-    editor.row[14].text = "row";
-    editor.row[15].text = "row";
+    editor.row[14].text = "row aetbastbase";
+    editor.row[15].text = "row ateasbtaesta";
     editor.row[16].text = "row";
-    editor.row[17].text = "row";
+    editor.row[17].text = "rowabteabt";
     editor.row[18].text = "row";
-    editor.row[19].text = "row";
+    editor.row[19].text = "rowtaestnaesn tasetbaestnase tesantasbte";
     editor.row[20].text = "row152";
     editor.row[21].text = "row152";
     editor.row[22].text = "row152";
@@ -339,6 +339,7 @@ void getButtonClick(int x, int y)
         wordWrap.isSet = 1-wordWrap.isSet;
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
+        settextstyle(font,0,0);
     }
 }
 
