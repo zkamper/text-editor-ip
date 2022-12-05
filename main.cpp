@@ -61,7 +61,7 @@ struct editorConfig
     bool isWordWrap = false;
     int maxRowLength;
     int rowCount = 1;
-}editor, editorWrap;
+} editor, editorWrap;
 
 struct cursor
 {
@@ -77,20 +77,21 @@ void drawHorizBar();
 void wordWrapAll();
 void displayRows();
 
-void openTxt(char* location){
-    if(location == NULL)
+void openTxt(char *location)
+{
+    if (location == NULL)
         return;
     else
     {
-        printf("Opened %s",location);
-        FILE* myFile = fopen(location,"r");
-        while(!feof(myFile))
+        printf("Opened %s", location);
+        FILE *myFile = fopen(location, "r");
+        while (!feof(myFile))
         {
-            fgets(editor.row[cursor.lin].text,1000,myFile);
+            fgets(editor.row[cursor.lin].text, 1000, myFile);
             cursor.lin++;
             editor.rowCount++;
         }
-        cursor.col = strlen(editor.row[cursor.lin-1].text);
+        cursor.col = strlen(editor.row[cursor.lin - 1].text);
     }
     displayRows();
 }
@@ -162,13 +163,13 @@ void drawVerticalBar()
 {
     setfillstyle(1, accentColor2);
     int verticalBarLength = (double)(winHeight - saveButton.buttonHeight - 10 - 63) * barRaport2;
-    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight-31) / (winHeight + displayOffset2);
+    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight - 31) / (winHeight + displayOffset2);
     bar(winLength - 18, saveButton.buttonHeight + 31 + barDisplayOffset, winLength - 2, saveButton.buttonHeight + 31 + barDisplayOffset + verticalBarLength);
 }
 
 void drawArrowsHorizontal()
 {
-    
+
     setfillstyle(1, accentColor1);
     bar(0, winHeight - 20, winLength, winHeight);
     readimagefile(leftArrow, 0, winHeight - 20, 20, winHeight);
@@ -178,7 +179,7 @@ void drawArrowsHorizontal()
 
 void drawArrowsVertical()
 {
-    
+
     setfillstyle(1, accentColor1);
     bar(winLength - 20, saveButton.buttonHeight + 10, winLength, winHeight - 21);
     readimagefile(upArrow, winLength - 20, saveButton.buttonHeight + 10, winLength, saveButton.buttonHeight + 30);
@@ -229,20 +230,19 @@ void displayRows()
 
     if (!editor.isWordWrap)
         for (int i = 0; i < editor.rowCount; i++)
-    {
-        outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editor.row[i].text);
-        y += textheight(editor.row[i].text);
-    }
+        {
+            outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editor.row[i].text);
+            y += textheight(editor.row[i].text);
+        }
     else
         for (int i = 0; i < editorWrap.rowCount; i++)
-    {
-        outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
-        y += textheight(editorWrap.row[i].text);
-    }
+        {
+            outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
+            y += textheight(editorWrap.row[i].text);
+        }
 
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
-    
 }
 
 void debugFunc()
@@ -358,11 +358,12 @@ void shiftLeft()
 {
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
-    int shiftBy = displayOffset/30;
-    if(currDisplayOffset>=0 && currDisplayOffset<=displayOffset)
-    {currDisplayOffset -= shiftBy;
-    currDisplayOffset = (currDisplayOffset < 0) ? 0 : currDisplayOffset;
-    displayRows();
+    int shiftBy = displayOffset / 30;
+    if (currDisplayOffset >= 0 && currDisplayOffset <= displayOffset)
+    {
+        currDisplayOffset -= shiftBy;
+        currDisplayOffset = (currDisplayOffset < 0) ? 0 : currDisplayOffset;
+        displayRows();
     }
 }
 
@@ -370,33 +371,39 @@ void shiftRight()
 {
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
-    int shiftBy = displayOffset/30;
-    if(currDisplayOffset>=0 && currDisplayOffset<=displayOffset)
-    {currDisplayOffset += shiftBy;
-    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
-    displayRows();}
+    int shiftBy = displayOffset / 30;
+    if (currDisplayOffset >= 0 && currDisplayOffset <= displayOffset)
+    {
+        currDisplayOffset += shiftBy;
+        currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+        displayRows();
+    }
 }
 
 void shiftUp()
 {
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
-    int shiftBy = displayOffset2/30;
-    if(currDisplayOffset2>=0 && currDisplayOffset2<=displayOffset2)
-    {currDisplayOffset2 -= shiftBy;
-    currDisplayOffset2 = (currDisplayOffset2 < 0) ? 0 : currDisplayOffset2;
-    displayRows();}
+    int shiftBy = displayOffset2 / 30;
+    if (currDisplayOffset2 >= 0 && currDisplayOffset2 <= displayOffset2)
+    {
+        currDisplayOffset2 -= shiftBy;
+        currDisplayOffset2 = (currDisplayOffset2 < 0) ? 0 : currDisplayOffset2;
+        displayRows();
+    }
 }
 
 void shiftDown()
 {
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
-    int shiftBy = displayOffset2/30;
-    if(currDisplayOffset2>=0 && currDisplayOffset2<=displayOffset2)
-    {currDisplayOffset2 += shiftBy;
-    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
-    displayRows();}
+    int shiftBy = displayOffset2 / 30;
+    if (currDisplayOffset2 >= 0 && currDisplayOffset2 <= displayOffset2)
+    {
+        currDisplayOffset2 += shiftBy;
+        currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+        displayRows();
+    }
 }
 
 void getButtonClick(int x, int y)
@@ -433,10 +440,10 @@ void getButtonClick(int x, int y)
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
         if (editor.isWordWrap)
-           {
+        {
             wordWrapAll();
             displayRows();
-           }
+        }
     }
 }
 
@@ -575,53 +582,56 @@ char alltext[10000];
 
 void wordWrapAll()
 {
- setTextFont();
- strcpy(alltext, "");
- for (int i = 0; i < editor.rowCount; i++)
-      strcat(alltext, editor.row[i].text);
- ///de editat
+    setTextFont();
+    strcpy(alltext, "");
+    for (int i = 0; i < editor.rowCount; i++)
+        strcat(alltext, editor.row[i].text);
+    /// de editat
 
- int left=0, right, lg;
- char *p;
- editorWrap.rowCount=0;
- ///de editat
- cursor.lin=cursor.col=0;
- lg=strlen(alltext);
- while (1)
-       {
-        for (right=left; right<lg; right++)
+    int left = 0, right, lg;
+    char *p;
+    editorWrap.rowCount = 0;
+    /// de editat
+    cursor.lin = cursor.col = 0;
+    lg = strlen(alltext);
+    while (1)
+    {
+        for (right = left; right < lg; right++)
+        {
+            p = subStr(alltext, left, right);
+            cout << textwidth(p) << '\n';
+            if (alltext[right] == '\n' || alltext[right] == ' ' || right == lg - 1)
             {
-             p=subStr(alltext,left,right);
-             cout<<textwidth(p)<<'\n';
-             if (textwidth(p) + 29 > winLength)
-                {///cuv mai mare decat tot randul
-                 if (editorWrap.row[cursor.lin].text[0]) cursor.lin++;
-                 strcpy(editorWrap.row[cursor.lin].text,p);
-                 editorWrap.row[cursor.lin].text[strlen(editorWrap.row[cursor.lin].text)-1]=0;
-                 cursor.lin++;
-                 editorWrap.row[cursor.lin].text[0]=alltext[right];
-                 editorWrap.row[cursor.lin].text[1]=0;
-                 break;
-                }
-             if (alltext[right]=='\n' || alltext[right]==' ' || right==lg-1)
+                /// enter, spatiu sau finalul stringului mare
+                if (textwidth(editorWrap.row[cursor.lin].text) + textwidth(p) + 29 <= winLength)
+                    strcat(editorWrap.row[cursor.lin].text, p);
+                else
                 {
-                 ///enter, spatiu sau finalul stringului mare
-                 if (textwidth(editorWrap.row[cursor.lin].text) + textwidth(p) + 29 <= winLength)
-                     strcat(editorWrap.row[cursor.lin].text,p);
-                 else
-                    {
-                     cursor.lin++;
-                     strcpy(editorWrap.row[cursor.lin].text,p);
-                    }
-                 if (alltext[right]='\n') cursor.lin++;
-                 break;
+                    cursor.lin++;
+                    strcpy(editorWrap.row[cursor.lin].text, p);
                 }
+                if (alltext[right] == '\n')
+                    cursor.lin++;
+                break;
             }
-        left=right+1;
-        if (left==lg) break;
-       }
- editorWrap.rowCount=cursor.lin+1;
- cursor.col=strlen(editorWrap.row[cursor.col].text);
+            if (textwidth(p) + 29 > winLength)
+            { /// cuv mai mare decat tot randul
+                if (editorWrap.row[cursor.lin].text[0])
+                    cursor.lin++;
+                strcpy(editorWrap.row[cursor.lin].text, p);
+                editorWrap.row[cursor.lin].text[strlen(editorWrap.row[cursor.lin].text) - 1] = 0;
+                cursor.lin++;
+                editorWrap.row[cursor.lin].text[0] = alltext[right];
+                editorWrap.row[cursor.lin].text[1] = 0;
+                break;
+            }
+        }
+        left = right + 1;
+        if (left == lg)
+            break;
+    }
+    editorWrap.rowCount = cursor.lin + 1;
+    cursor.col = strlen(editorWrap.row[cursor.col].text);
 }
 
 void readText(char *location)
@@ -639,41 +649,45 @@ void readText(char *location)
     while (curr != 27) /// escape
     {
         fflush(stdin);
-        if (curr == KEY_UP) shiftUp();
-        else if (curr == KEY_DOWN) shiftDown();
-        else if (curr == KEY_LEFT) shiftLeft();
-        else if (curr == KEY_RIGHT) shiftRight();
+        if (curr == KEY_UP)
+            shiftUp();
+        else if (curr == KEY_DOWN)
+            shiftDown();
+        else if (curr == KEY_LEFT)
+            shiftLeft();
+        else if (curr == KEY_RIGHT)
+            shiftRight();
         else
+        {
+            /// text[lgtext].c = curr;
+            if (curr == 9)
             {
-                /// text[lgtext].c = curr;
-                if (curr == 9)
-                {
-                    /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
-                }
-
-                editor.row[cursor.lin].text[cursor.col] = curr;
-                editor.row[cursor.lin].text[cursor.col + 1] = 0;
-
-                /// setPosChar(&curr);
-                if (curr == 13)
-                {
-                    editor.row[cursor.lin].text[cursor.col] = '\n';
-                    cursor.lin++;
-                    editor.rowCount++;
-                    /// strcpy(editor.row[editor.rowCount-1].text,"");
-                    cursor.col = 0;
-                }
-                else
-                    cursor.col++;
-                displayRows();
+                /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
+
+            editor.row[cursor.lin].text[cursor.col] = curr;
+            editor.row[cursor.lin].text[cursor.col + 1] = 0;
+
+            /// setPosChar(&curr);
+            if (curr == 13)
+            {
+                editor.row[cursor.lin].text[cursor.col] = '\n';
+                cursor.lin++;
+                editor.rowCount++;
+                /// strcpy(editor.row[editor.rowCount-1].text,"");
+                cursor.col = 0;
+            }
+            else
+                cursor.col++;
+            displayRows();
+        }
 
         /// lgtext++;
         curr = getch();
     }
 }
 
-int main(int argn, char* argc[])
+int main(int argn, char *argc[])
 {
     windowsInit();
     // debugFunc();
