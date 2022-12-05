@@ -530,12 +530,12 @@ void wordWrapAll()
     for (int i = 0; i < editor.rowCount; i++)
         strcat(alltext, editor.row[i].text);
 
-    // while (1)
-    //      {
-    //     for (right=left; right!=13; right++)
-    //
-    //
-    //     }
+        // while (1)
+        //      {
+        //     for (right=left; right!=13; right++)
+        //
+        //
+        //     }
 }
 
 void readText()
@@ -567,6 +567,7 @@ void readText()
                 /// setPosChar(&curr);
                 if (curr == 13)
                 {
+                    editor.row[cursor.lin].text[cursor.col] = '\n';
                     cursor.lin++;
                     editor.rowCount++;
                     /// strcpy(editor.row[editor.rowCount-1].text,"");
