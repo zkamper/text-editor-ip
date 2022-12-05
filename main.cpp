@@ -15,7 +15,7 @@ double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton;
 Toggle wordWrap;
 int font = 8; /// 8 - font recomandat, fara niciun offset
-int winLength, winHeight;
+double winLength, winHeight;
 int bkColor = COLOR(221, 234, 235);      // Culoarea de fundal;
 int accentColor1 = COLOR(177, 187, 188); // Fundal butoane
 int accentColor2 = COLOR(99, 110, 109);  // Conturul de la hover la butoane
@@ -61,7 +61,7 @@ struct editorConfig
     bool isWordWrap = false;
     int maxRowLength;
     int rowCount = 1;
-} editor;
+}editor, editorWrap;
 
 struct cursor
 {
@@ -226,11 +226,20 @@ void displayRows()
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
     setviewport(0, saveButton.buttonHeight + 10, winLength, winHeight, 1);
-    for (int i = 0; i < editor.rowCount; i++)
+
+    if (!editor.isWordWrap)
+        for (int i = 0; i < editor.rowCount; i++)
     {
         outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editor.row[i].text);
         y += textheight(editor.row[i].text);
     }
+    else
+        for (int i = 0; i < editorWrap.rowCount; i++)
+    {
+        outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
+        y += textheight(editorWrap.row[i].text);
+    }
+
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
     
@@ -424,7 +433,10 @@ void getButtonClick(int x, int y)
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
         if (editor.isWordWrap)
+           {
             wordWrapAll();
+            displayRows();
+           }
     }
 }
 
@@ -563,17 +575,53 @@ char alltext[10000];
 
 void wordWrapAll()
 {
-    int left = 0;
-    strcpy(alltext, "");
-    for (int i = 0; i < editor.rowCount; i++)
-        strcat(alltext, editor.row[i].text);
+ setTextFont();
+ strcpy(alltext, "");
+ for (int i = 0; i < editor.rowCount; i++)
+      strcat(alltext, editor.row[i].text);
+ ///de editat
 
-        // while (1)
-        //      {
-        //     for (right=left; right!=13; right++)
-        //
-        //
-        //     }
+ int left=0, right, lg;
+ char *p;
+ editorWrap.rowCount=0;
+ ///de editat
+ cursor.lin=cursor.col=0;
+ lg=strlen(alltext);
+ while (1)
+       {
+        for (right=left; right<lg; right++)
+            {
+             p=subStr(alltext,left,right);
+             cout<<textwidth(p)<<'\n';
+             if (textwidth(p) + 29 > winLength)
+                {///cuv mai mare decat tot randul
+                 if (editorWrap.row[cursor.lin].text[0]) cursor.lin++;
+                 strcpy(editorWrap.row[cursor.lin].text,p);
+                 editorWrap.row[cursor.lin].text[strlen(editorWrap.row[cursor.lin].text)-1]=0;
+                 cursor.lin++;
+                 editorWrap.row[cursor.lin].text[0]=alltext[right];
+                 editorWrap.row[cursor.lin].text[1]=0;
+                 break;
+                }
+             if (alltext[right]=='\n' || alltext[right]==' ' || right==lg-1)
+                {
+                 ///enter, spatiu sau finalul stringului mare
+                 if (textwidth(editorWrap.row[cursor.lin].text) + textwidth(p) + 29 <= winLength)
+                     strcat(editorWrap.row[cursor.lin].text,p);
+                 else
+                    {
+                     cursor.lin++;
+                     strcpy(editorWrap.row[cursor.lin].text,p);
+                    }
+                 if (alltext[right]='\n') cursor.lin++;
+                 break;
+                }
+            }
+        left=right+1;
+        if (left==lg) break;
+       }
+ editorWrap.rowCount=cursor.lin+1;
+ cursor.col=strlen(editorWrap.row[cursor.col].text);
 }
 
 void readText(char *location)
@@ -581,7 +629,9 @@ void readText(char *location)
     for (int i = 0; i < 100; i++)
     {
         editor.row[i].text = (char *)malloc(1000);
+        editorWrap.row[i].text = (char *)malloc(1000);
         editor.row[i].text[0] = '\0';
+        editorWrap.row[i].text[0] = '\0';
     }
     openTxt(location);
     char curr;
@@ -617,7 +667,7 @@ void readText(char *location)
                     cursor.col++;
                 displayRows();
             }
-        
+
         /// lgtext++;
         curr = getch();
     }
