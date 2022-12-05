@@ -43,7 +43,7 @@ struct
     double length;
     char c;
 } text[NMAX];
-int lgtext=0;
+int lgtext = 0;
 
 struct row
 {
@@ -64,8 +64,8 @@ struct editorConfig
 
 struct cursor
 {
- int lin=0, col=0;
-}cursor;
+    int lin = 0, col = 0;
+} cursor;
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
@@ -83,9 +83,7 @@ void drawIcons()
     wordWrap.bkcolor = accentColor1;
     wordWrap.oncolor = accentColor2;
     wordWrap.isSet;
-    wordWrap.toggleWidth = wordWrap.radius*2+textwidth(wordWrap.text)+15;
-
-
+    wordWrap.toggleWidth = wordWrap.radius * 2 + textwidth(wordWrap.text) + 15;
 
     saveButton.bkcolor = COLOR(177, 187, 188);
     copyButton.bkcolor = COLOR(177, 187, 188);
@@ -114,12 +112,12 @@ void drawIcons()
     copyButton.b.x = saveButton.b.x + saveButton.buttonWidth + offset;
     pasteButton.b.x = copyButton.b.x + copyButton.buttonWidth + offset;
     fontButton.b.x = pasteButton.b.x + pasteButton.buttonWidth + offset;
-    wordWrap.b.x = fontButton.b.x + fontButton.buttonWidth + offset*3;
+    wordWrap.b.x = fontButton.b.x + fontButton.buttonWidth + offset * 3;
 
     saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
 
-    wordWrap.center.x = wordWrap.b.x+wordWrap.radius+5;
-    wordWrap.center.y = wordWrap.b.y+wordWrap.toggleHeight/2;
+    wordWrap.center.x = wordWrap.b.x + wordWrap.radius + 5;
+    wordWrap.center.y = wordWrap.b.y + wordWrap.toggleHeight / 2;
 
     drawToggle(wordWrap);
 
@@ -128,27 +126,29 @@ void drawIcons()
     drawButton(pasteButton);
     drawButton(fontButton);
 
-
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
 }
 
-void drawHorizBar(){
-    setfillstyle(1,accentColor2);
-    int horizBarLength = (double)(winLength-28)*barRaport;
-    int barDisplayOffset = (double)(currDisplayOffset) * (winLength-46)/(winLength+displayOffset+8);
-    bar(22+barDisplayOffset,winHeight-18,22+horizBarLength+barDisplayOffset,winHeight-2);
+void drawHorizBar()
+{
+    setfillstyle(1, accentColor2);
+    int horizBarLength = (double)(winLength - 28) * barRaport;
+    int barDisplayOffset = (double)(currDisplayOffset) * (winLength - 46) / (winLength + displayOffset + 8);
+    bar(22 + barDisplayOffset, winHeight - 18, 22 + horizBarLength + barDisplayOffset, winHeight - 2);
 }
 
-void drawVerticalBar(){
-    setfillstyle(1,accentColor2);
-    int verticalBarLength = (double)(winHeight-saveButton.buttonHeight-10-63)*barRaport2;
-    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight-46)/(winHeight+displayOffset2+saveButton.buttonHeight+10);
-    bar(winLength-18,saveButton.buttonHeight+31+barDisplayOffset,winLength-2,saveButton.buttonHeight+31+barDisplayOffset+verticalBarLength);
+void drawVerticalBar()
+{
+    setfillstyle(1, accentColor2);
+    int verticalBarLength = (double)(winHeight - saveButton.buttonHeight - 10 - 63) * barRaport2;
+    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight-31) / (winHeight + displayOffset2);
+    bar(winLength - 18, saveButton.buttonHeight + 31 + barDisplayOffset, winLength - 2, saveButton.buttonHeight + 31 + barDisplayOffset + verticalBarLength);
 }
 
 void drawArrowsHorizontal()
 {
+    (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     setfillstyle(1, accentColor1);
     bar(0, winHeight - 20, winLength, winHeight);
     readimagefile(leftArrow, 0, winHeight - 20, 20, winHeight);
@@ -158,29 +158,32 @@ void drawArrowsHorizontal()
 
 void drawArrowsVertical()
 {
+    (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
     setfillstyle(1, accentColor1);
-    bar(winLength-20, saveButton.buttonHeight+10, winLength, winHeight-21);
-    readimagefile(upArrow,winLength-20,saveButton.buttonHeight+10,winLength,saveButton.buttonHeight+30);
-    readimagefile(downArrow,winLength-20,winHeight-41,winLength,winHeight-21);
+    bar(winLength - 20, saveButton.buttonHeight + 10, winLength, winHeight - 21);
+    readimagefile(upArrow, winLength - 20, saveButton.buttonHeight + 10, winLength, saveButton.buttonHeight + 30);
+    readimagefile(downArrow, winLength - 20, winHeight - 41, winLength, winHeight - 21);
     drawVerticalBar();
 }
 
 void calculateBar()
 {
-    //cout<<editor.rowCount<<endl;
+    // cout<<editor.rowCount<<endl;
+    displayOffset = displayOffset2 = 0;
     for (int i = 0; i < editor.rowCount; i++)
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
-            displayOffset = textwidth(editor.row[i].text) - winLength + 29;  // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
-            barRaport = (double)(winLength-29) / (winLength + displayOffset-29);
+            displayOffset = textwidth(editor.row[i].text) - winLength + 29; // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
+            barRaport = (double)(winLength - 29) / (winLength + displayOffset - 29);
         }
     }
-    //cout<< textheight(editor.row[0].text);
-    if(editor.rowCount * textheight(editor.row[0].text) > winHeight-saveButton.buttonHeight-31);
+    // cout<< textheight(editor.row[0].text);
+    if (editor.rowCount * textheight(editor.row[0].text) > winHeight - saveButton.buttonHeight - 31)
+        ;
     {
-        displayOffset2 = editor.rowCount * textheight(editor.row[0].text)-winHeight+saveButton.iconHeight+31;
-        barRaport2 = (double)( winHeight-saveButton.buttonHeight-31)/( winHeight-saveButton.buttonHeight-31+displayOffset2);
+        displayOffset2 = editor.rowCount * textheight(editor.row[0].text) - winHeight + saveButton.iconHeight + 31;
+        barRaport2 = (double)(winHeight - saveButton.buttonHeight - 31) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
     }
 
     if (displayOffset > 0)
@@ -192,21 +195,19 @@ void calculateBar()
 void setTextFont();
 
 void displayRows()
-{   int x=8, y=0;
+{
+    int x = 8, y = 0;
     setTextFont();
-    setfillstyle(1,bkColor);
-    bar(0,saveButton.buttonHeight+10,winLength,winHeight);
-    setviewport(0,saveButton.buttonHeight+10,winLength,winHeight,1);
-    setfillstyle(1,bkColor);
+    setfillstyle(1, bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
+    setviewport(0, saveButton.buttonHeight + 10, winLength, winHeight, 1);
     for (int i = 0; i < editor.rowCount; i++)
     {
-        outtextxy(x - currDisplayOffset, y-currDisplayOffset2, editor.row[i].text);
+        outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editor.row[i].text);
         y += textheight(editor.row[i].text);
     }
-    setviewport(0,0,winLength,winHeight,1);
+    setviewport(0, 0, winLength, winHeight, 1);
     calculateBar();
-
 }
 
 void debugFunc()
@@ -243,14 +244,15 @@ void debugFunc()
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
-            displayOffset = textwidth(editor.row[i].text) - winLength + 29;  // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
-            barRaport = (double)(winLength-29) / (winLength + displayOffset-29);
+            displayOffset = textwidth(editor.row[i].text) - winLength + 29; // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
+            barRaport = (double)(winLength - 29) / (winLength + displayOffset - 29);
         }
     }
-    if(editor.rowCount * textheight(editor.row[0].text) > winHeight-saveButton.buttonHeight-31);
+    if (editor.rowCount * textheight(editor.row[0].text) > winHeight - saveButton.buttonHeight - 31)
+        ;
     {
-        displayOffset2 = editor.rowCount * textheight(editor.row[0].text)-winHeight+saveButton.iconHeight+31;
-        barRaport2 = (double)( winHeight-saveButton.buttonHeight-31)/( winHeight-saveButton.buttonHeight-31+displayOffset2);
+        displayOffset2 = editor.rowCount * textheight(editor.row[0].text) - winHeight + saveButton.iconHeight + 31;
+        barRaport2 = (double)(winHeight - saveButton.buttonHeight - 31) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
     }
     setcolor(BLACK);
     displayRows();
@@ -318,6 +320,39 @@ void setTextFont()
     setcolor(BLACK);
 }
 
+void shiftLeft()
+{
+    if(currDisplayOffset>=0 && currDisplayOffset<=displayOffset)
+    {currDisplayOffset -= 10;
+    currDisplayOffset = (currDisplayOffset < 0) ? 0 : currDisplayOffset;
+    displayRows();
+    }
+}
+
+void shiftRight()
+{
+    if(currDisplayOffset>=0 && currDisplayOffset<=displayOffset)
+    {currDisplayOffset += 10;
+    currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
+    displayRows();}
+}
+
+void shiftUp()
+{
+    if(currDisplayOffset2>=0 && currDisplayOffset2<=displayOffset2)
+    {currDisplayOffset2 -= 10;
+    currDisplayOffset2 = (currDisplayOffset2 < 0) ? 0 : currDisplayOffset2;
+    displayRows();}
+}
+
+void shiftDown()
+{
+    if(currDisplayOffset2>=0 && currDisplayOffset2<=displayOffset2)
+    {currDisplayOffset2 += 10;
+    currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
+    displayRows();}
+}
+
 void getButtonClick(int x, int y)
 {
     Button b[] = {copyButton, saveButton, pasteButton, fontButton};
@@ -337,41 +372,22 @@ void getButtonClick(int x, int y)
             }
         }
     }
-    if(displayOffset > 0 && 0<=x && x<=20 && winHeight-20<=y && y<=winHeight)
-    {
-        currDisplayOffset-=10;
-        currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
-        displayRows();
-        drawArrowsHorizontal();
-    }
-    if(displayOffset > 0 && winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
-    {
-        currDisplayOffset+=10;
-        currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
-        displayRows();
-        drawArrowsHorizontal();
-    }
-    if(displayOffset2 > 0 && (winLength-20)<=x && x <= winLength && (saveButton.buttonHeight+10) <= y && y <= (saveButton.buttonHeight + 30))
-    {
-        currDisplayOffset2-=10;
-        currDisplayOffset2 = (currDisplayOffset2<0)?0:currDisplayOffset2;
-        displayRows();
-        drawArrowsVertical();
-    }
-    if(displayOffset2 > 0 && (winLength-20) <= x && x <= winLength && (winHeight-40) <= y && y <= (winHeight-20))
-    {
-        currDisplayOffset2 += 10;
-        currDisplayOffset2 = (currDisplayOffset2>displayOffset2)?displayOffset2:currDisplayOffset2;
-        displayRows();
-        drawArrowsVertical();
-    }
+    if (displayOffset > 0 && 0 <= x && x <= 20 && winHeight - 20 <= y && y <= winHeight)
+        shiftLeft();
+    if (displayOffset > 0 && winLength - 20 <= x && x <= winLength && winHeight - 20 <= y && y <= winHeight)
+        shiftRight();
+    if (displayOffset2 > 0 && (winLength - 20) <= x && x <= winLength && (saveButton.buttonHeight + 10) <= y && y <= (saveButton.buttonHeight + 30))
+        shiftUp();
+    if (displayOffset2 > 0 && (winLength - 20) <= x && x <= winLength && (winHeight - 40) <= y && y <= (winHeight - 20))
+        shiftDown();
 
-    if(wordWrap.center.x-wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
+    if (wordWrap.center.x - wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
     {
-        wordWrap.isSet = 1-wordWrap.isSet;
+        wordWrap.isSet = 1 - wordWrap.isSet;
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
-        if(editor.isWordWrap) wordWrapAll();
+        if (editor.isWordWrap)
+            wordWrapAll();
     }
 }
 
@@ -420,8 +436,8 @@ void windowsInit()
     cleardevice();
     drawIcons();
     setcolor(accentColor2);
-    setlinestyle(0,0,2);
-    line(0,saveButton.buttonHeight+9,winLength,saveButton.buttonHeight+9);
+    setlinestyle(0, 0, 2);
+    line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
 }
 
 void write(int left, int right)
@@ -509,49 +525,59 @@ char alltext[10000];
 
 void wordWrapAll()
 {
- int left=0;
- strcpy(alltext,"");
- for (int i=0; i<editor.rowCount; i++)
-      strcat(alltext, editor.row[i].text);
+    int left = 0;
+    strcpy(alltext, "");
+    for (int i = 0; i < editor.rowCount; i++)
+        strcat(alltext, editor.row[i].text);
 
- //while (1)
-  //     {
-    //    for (right=left; right!=13; right++)
-//
-//
-  //     }
+    // while (1)
+    //      {
+    //     for (right=left; right!=13; right++)
+    //
+    //
+    //     }
 }
-
 
 void readText()
 {
     for (int i = 0; i < 100; i++)
-        {editor.row[i].text = (char *)malloc(1000);
-        editor.row[i].text[0] = '\0';}
+    {
+        editor.row[i].text = (char *)malloc(1000);
+        editor.row[i].text[0] = '\0';
+    }
     char curr;
     curr = getch();
     while (curr != 27) /// escape
     {
-        ///text[lgtext].c = curr;
-        if(curr==9)
-        {
-            ///inserare(editor.row[cursor.lin].text,"    ",cursor.col)
-        }
+        if (curr == KEY_UP) shiftUp();
+        else if (curr == KEY_DOWN) shiftDown();
+        else if (curr == KEY_LEFT) shiftLeft();
+        else if (curr == KEY_RIGHT) shiftRight();
+        else
+            {
+                /// text[lgtext].c = curr;
+                if (curr == 9)
+                {
+                    /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
+                }
 
-        editor.row[cursor.lin].text[cursor.col] = curr;
-        editor.row[cursor.lin].text[cursor.col+1] = 0;
+                editor.row[cursor.lin].text[cursor.col] = curr;
+                editor.row[cursor.lin].text[cursor.col + 1] = 0;
 
-        ///setPosChar(&curr);
-        if (curr==13)
-        {
-            cursor.lin++;
-            editor.rowCount++;
-            ///strcpy(editor.row[editor.rowCount-1].text,"");
-            cursor.col=0;
-        }
-        else cursor.col++;
-        displayRows();
-        ///lgtext++;
+                /// setPosChar(&curr);
+                if (curr == 13)
+                {
+                    cursor.lin++;
+                    editor.rowCount++;
+                    /// strcpy(editor.row[editor.rowCount-1].text,"");
+                    cursor.col = 0;
+                }
+                else
+                    cursor.col++;
+                displayRows();
+            }
+        
+        /// lgtext++;
         curr = getch();
     }
 }
@@ -559,7 +585,7 @@ void readText()
 int main()
 {
     windowsInit();
-    //debugFunc();
+    // debugFunc();
     readText();
     closegraph();
     return 0;
