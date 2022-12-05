@@ -3,8 +3,12 @@
 #include <graphics.h>
 #include <cmath>
 #include "display.h"
+#include "siruri.h"
 #define NMAX 10000
+#include <fstream>
 using namespace std;
+
+ofstream fout("dd.txt");
 
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton;
@@ -27,7 +31,6 @@ double currBarOffset = 0;
 double offsetHeight, offsetLength;
 double currWordLength = 0;
 int currWordStart = 0;
-int x = 8, y;
 
 char *upArrow = "icons\\up.gif";
 char *downArrow = "icons\\down.gif";
@@ -44,7 +47,7 @@ int lgtext=0;
 
 struct row
 {
-    char *text = "";
+    char *text;
     int offsetLine;
     int offsetCol;
     int length;
@@ -54,11 +57,15 @@ struct row
 struct editorConfig
 {
     row row[100];
-    int currRow=0;
     bool isWordWrap = false;
     int maxRowLength;
-    int rowCount = 0;
+    int rowCount = 1;
 } editor;
+
+struct cursor
+{
+ int lin=0, col=0;
+}cursor;
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
@@ -66,6 +73,7 @@ void getMouseHover(int x, int y);
 void debugFunct();
 void drawArrowsHorizontal();
 void drawHorizBar();
+void wordWrapAll();
 
 void drawIcons()
 {
@@ -157,21 +165,48 @@ void drawArrowsVertical()
     drawVerticalBar();
 }
 
-void displayRows()
+void calculateBar()
 {
+    //cout<<editor.rowCount<<endl;
+    for (int i = 0; i < editor.rowCount; i++)
+    {
+        if (textwidth(editor.row[i].text) - winLength > displayOffset)
+        {
+            displayOffset = textwidth(editor.row[i].text) - winLength + 29;  // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
+            barRaport = (double)(winLength-29) / (winLength + displayOffset-29);
+        }
+    }
+    //cout<< textheight(editor.row[0].text);
+    if(editor.rowCount * textheight(editor.row[0].text) > winHeight-saveButton.buttonHeight-31);
+    {
+        displayOffset2 = editor.rowCount * textheight(editor.row[0].text)-winHeight+saveButton.iconHeight+31;
+        barRaport2 = (double)( winHeight-saveButton.buttonHeight-31)/( winHeight-saveButton.buttonHeight-31+displayOffset2);
+    }
+
+    if (displayOffset > 0)
+        drawArrowsHorizontal();
+    if (displayOffset2 > 0)
+        drawArrowsVertical();
+}
+
+void setTextFont();
+
+void displayRows()
+{   int x=8, y=0;
+    setTextFont();
     setfillstyle(1,bkColor);
-    bar(0,saveButton.buttonHeight+11,winLength,winHeight);
+    bar(0,saveButton.buttonHeight+10,winLength,winHeight);
     setviewport(0,saveButton.buttonHeight+10,winLength,winHeight,1);
     setfillstyle(1,bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
-    y = 0;
     for (int i = 0; i < editor.rowCount; i++)
     {
         outtextxy(x - currDisplayOffset, y-currDisplayOffset2, editor.row[i].text);
         y += textheight(editor.row[i].text);
     }
     setviewport(0,0,winLength,winHeight,1);
-    
+    calculateBar();
+
 }
 
 void debugFunc()
@@ -204,7 +239,7 @@ void debugFunc()
     editor.row[23].text = "row152";
     editor.row[24].text = "row152";
     editor.rowCount = 25;
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < 100; i++)
     {
         if (textwidth(editor.row[i].text) - winLength > displayOffset)
         {
@@ -296,6 +331,7 @@ void getButtonClick(int x, int y)
             {
                 font = (font + 1) % 11;
                 setTextFont();
+                displayRows();
                 fontButton.font = font;
                 drawButton(fontButton);
             }
@@ -307,7 +343,6 @@ void getButtonClick(int x, int y)
         currDisplayOffset = (currDisplayOffset<0)?0:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
-        drawArrowsVertical();
     }
     if(displayOffset > 0 && winLength-20<=x && x<=winLength && winHeight-20<=y && y<=winHeight)
     {
@@ -315,14 +350,12 @@ void getButtonClick(int x, int y)
         currDisplayOffset = (currDisplayOffset>displayOffset)?displayOffset:currDisplayOffset;
         displayRows();
         drawArrowsHorizontal();
-        drawArrowsVertical();
     }
     if(displayOffset2 > 0 && (winLength-20)<=x && x <= winLength && (saveButton.buttonHeight+10) <= y && y <= (saveButton.buttonHeight + 30))
     {
         currDisplayOffset2-=10;
         currDisplayOffset2 = (currDisplayOffset2<0)?0:currDisplayOffset2;
         displayRows();
-        drawArrowsHorizontal();
         drawArrowsVertical();
     }
     if(displayOffset2 > 0 && (winLength-20) <= x && x <= winLength && (winHeight-40) <= y && y <= (winHeight-20))
@@ -330,15 +363,15 @@ void getButtonClick(int x, int y)
         currDisplayOffset2 += 10;
         currDisplayOffset2 = (currDisplayOffset2>displayOffset2)?displayOffset2:currDisplayOffset2;
         displayRows();
-        drawArrowsHorizontal();
         drawArrowsVertical();
-    } 
-    
+    }
+
     if(wordWrap.center.x-wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
     {
         wordWrap.isSet = 1-wordWrap.isSet;
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
+        if(editor.isWordWrap) wordWrapAll();
     }
 }
 
@@ -403,7 +436,7 @@ void write(int left, int right)
         }
 }
 
-void setPosChar(char *curr)
+/*void setPosChar(char *curr)
 {
     setTextFont();
     if (*curr == 9) /// 9 = TAB aka indentare
@@ -470,23 +503,55 @@ void setPosChar(char *curr)
         currWordLength += text[lgtext].length;
         return;
     }
+}*/
+
+char alltext[10000];
+
+void wordWrapAll()
+{
+ int left=0;
+ strcpy(alltext,"");
+ for (int i=0; i<editor.rowCount; i++)
+      strcat(alltext, editor.row[i].text);
+
+ //while (1)
+  //     {
+    //    for (right=left; right!=13; right++)
+//
+//
+  //     }
 }
+
 
 void readText()
 {
     for (int i = 0; i < 100; i++)
-         editor.row[i].text = (char *)malloc(1000);
+        {editor.row[i].text = (char *)malloc(1000);
+        editor.row[i].text[0] = '\0';}
     char curr;
     curr = getch();
     while (curr != 27) /// escape
     {
-        text[lgtext].c = curr;
-        editor.row[editor.currRow].text[editor.row[editor.currRow].index] = curr;
+        ///text[lgtext].c = curr;
+        if(curr==9)
+        {
+            ///inserare(editor.row[cursor.lin].text,"    ",cursor.col)
+        }
 
-        setPosChar(&curr);
+        editor.row[cursor.lin].text[cursor.col] = curr;
+        editor.row[cursor.lin].text[cursor.col+1] = 0;
 
-        editor.row[editor.currRow].index++;
-        lgtext++;
+        ///setPosChar(&curr);
+        if (curr==13)
+        {
+            cursor.lin++;
+            editor.rowCount++;
+            ///strcpy(editor.row[editor.rowCount-1].text,"");
+            cursor.col=0;
+        }
+        else cursor.col++;
+        displayRows();
+        ///lgtext++;
         curr = getch();
     }
 }
@@ -494,9 +559,8 @@ void readText()
 int main()
 {
     windowsInit();
-    y = saveButton.buttonHeight + 10;
-    debugFunc();
-    //readText();
+    //debugFunc();
+    readText();
     closegraph();
     return 0;
 }
