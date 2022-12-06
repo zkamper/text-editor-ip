@@ -195,7 +195,7 @@ void drawBar()
         drawArrowsVertical();
 }
 
-void calculateBar()
+void calculateBar(editorConfig editor)
 {
     // cout<<editor.rowCount<<endl;
     displayOffset = displayOffset2 = 0;
@@ -222,7 +222,10 @@ void displayRows()
     int x = 8, y = 0;
     setTextFont();
     setfillstyle(1, bkColor);
-    calculateBar();
+    if(editor.isWordWrap)
+        calculateBar(editorWrap);
+    else
+        calculateBar(editor);
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
