@@ -447,6 +447,9 @@ void getButtonClick(int x, int y)
             wordWrapAll();
             displayRows();
         }
+        else{
+            displayRows();
+        }
     }
 }
 
@@ -590,7 +593,9 @@ void wordWrapAll()
     for (int i = 0; i < editor.rowCount; i++)
         strcat(alltext, editor.row[i].text);
     /// de editat
-
+    for (int i = 0; i < 10000; i++)
+    {delete editorWrap.row[i].text;
+        editorWrap.row[i].text = new char[10000];}
     int left = 0, right, lg;
     char *p;
     editorWrap.rowCount = 0;
