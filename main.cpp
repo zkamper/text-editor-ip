@@ -68,6 +68,18 @@ struct cursor
     int lin = 0, col = 0;
 } cursor;
 
+void drawCursor()
+{
+    cout<<cursor.lin<<" "<<cursor.col<<endl;
+    int x = 8 + textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));
+    int y = textheight(editor.row[cursor.lin].text)*cursor.lin;
+    cout<<x<<" "<<y<<endl;
+    int prevColor = getcolor();
+    setcolor(accentColor3);
+    line(x-currDisplayOffset,y-currDisplayOffset2,x-currDisplayOffset,y-currDisplayOffset2+textheight(editor.row[cursor.lin].text));
+    setcolor(prevColor);
+}
+
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
 void getMouseHover(int x, int y);
@@ -220,19 +232,16 @@ void setTextFont();
 
 
 
-void initBuffers()
+void initBuffer()
 {
     int formerPage = getactivepage();
-    for(int i = 1 ; i < 10 ; i++)
-    {
-        setactivepage(i);
-        setbkcolor(bkColor);
+    setactivepage(1);
+    setbkcolor(bkColor);
     cleardevice();
     drawIcons();
     setcolor(accentColor2);
     setlinestyle(0, 0, 2);
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
-    }
     setactivepage(formerPage);
 }
 
@@ -242,6 +251,7 @@ void displayRows()
 {
     setactivepage(!page);
     page=!page;
+    drawIcons();
     int x = 8, y = 0;
     setTextFont();
     setfillstyle(1, bkColor);
@@ -266,7 +276,7 @@ void displayRows()
             outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
             y += textheight(editorWrap.row[i].text);
         }
-
+    drawCursor();
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
     swapbuffers();
@@ -435,6 +445,7 @@ void shiftDown()
 
 void getButtonClick(int x, int y)
 {
+    setactivepage(getvisualpage());
     Button b[] = {copyButton, saveButton, pasteButton, fontButton};
     int buttCount = 4;
     for (int i = 0; i < buttCount; i++)
@@ -447,6 +458,7 @@ void getButtonClick(int x, int y)
                 font = (font + 1) % 11;
                 setTextFont();
                 displayRows();
+                swapbuffers();
                 fontButton.font = font;
                 drawButton(fontButton);
             }
@@ -475,12 +487,14 @@ void getButtonClick(int x, int y)
             displayRows();
         }
     }
+    swapbuffers();
 }
 
 
 
 void getMouseHover(int x, int y)
 {
+    setactivepage(getvisualpage());
     Button b[] = {copyButton, saveButton, pasteButton, fontButton};
     int buttCount = 4;
     for (int i = 0; i < buttCount; i++)
@@ -488,7 +502,7 @@ void getMouseHover(int x, int y)
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
         {
             int prevColor = getcolor();
-            setlinestyle(0, 0, 3);
+            setlinestyle(0, 0, 1);
             setcolor(COLOR(99, 110, 109));
             rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
             setcolor(prevColor);
@@ -496,12 +510,13 @@ void getMouseHover(int x, int y)
         else if (x <= b[buttCount - 1].b.x + b[buttCount - 1].buttonWidth + 5 && y <= b[buttCount - 1].b.y + b[buttCount - 1].buttonHeight + 5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth || b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177, 188, 187))
         {
             int prevColor = getcolor();
-            setlinestyle(0, 0, 3);
+            setlinestyle(0, 0, 1);
             setcolor(COLOR(177, 188, 187));
             rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
             setcolor(prevColor);
         }
     }
+    swapbuffers();
 }
 
 void windowsInit()
@@ -516,7 +531,8 @@ void windowsInit()
     setcolor(accentColor2);
     setlinestyle(0, 0, 2);
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
-    initBuffers();
+    initBuffer();
+    swapbuffers();
 }
 
 void write(int left, int right)
@@ -680,14 +696,13 @@ void readText(char *location)
             shiftLeft();
         else if (curr == KEY_RIGHT)
             shiftRight();
-        else
+        else if(curr != NULL)
         {
             /// text[lgtext].c = curr;
             if (curr == 9)
             {
                 /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
-
             editor.row[cursor.lin].text[cursor.col] = curr;
             editor.row[cursor.lin].text[cursor.col + 1] = 0;
 
