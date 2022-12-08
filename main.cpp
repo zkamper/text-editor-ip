@@ -163,7 +163,7 @@ void drawVerticalBar()
 {
     setfillstyle(1, accentColor2);
     int verticalBarLength = (double)(winHeight - saveButton.buttonHeight - 10 - 63) * barRaport2;
-    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight - 31) / (winHeight + displayOffset2);
+    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight - 73) / (winHeight -saveButton.buttonHeight - 31+ displayOffset2);
     bar(winLength - 18, saveButton.buttonHeight + 31 + barDisplayOffset, winLength - 2, saveButton.buttonHeight + 31 + barDisplayOffset + verticalBarLength);
 }
 
@@ -217,8 +217,31 @@ void calculateBar(editorConfig editor)
 
 void setTextFont();
 
+
+
+
+void initBuffers()
+{
+    int formerPage = getactivepage();
+    for(int i = 1 ; i < 10 ; i++)
+    {
+        setactivepage(i);
+        setbkcolor(bkColor);
+    cleardevice();
+    drawIcons();
+    setcolor(accentColor2);
+    setlinestyle(0, 0, 2);
+    line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
+    }
+    setactivepage(formerPage);
+}
+
+int page = 0;
+
 void displayRows()
 {
+    setactivepage(!page);
+    page=!page;
     int x = 8, y = 0;
     setTextFont();
     setfillstyle(1, bkColor);
@@ -246,6 +269,7 @@ void displayRows()
 
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
+    swapbuffers();
 }
 
 void debugFunc()
@@ -453,13 +477,7 @@ void getButtonClick(int x, int y)
     }
 }
 
-void refreshDisplay()
-{
-    int oldv = getvisualpage();
-    int olda = getactivepage();
-    setvisualpage(olda);
-    setactivepage(oldv);
-}
+
 
 void getMouseHover(int x, int y)
 {
@@ -474,7 +492,6 @@ void getMouseHover(int x, int y)
             setcolor(COLOR(99, 110, 109));
             rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
             setcolor(prevColor);
-            refreshDisplay();
         }
         else if (x <= b[buttCount - 1].b.x + b[buttCount - 1].buttonWidth + 5 && y <= b[buttCount - 1].b.y + b[buttCount - 1].buttonHeight + 5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth || b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177, 188, 187))
         {
@@ -483,7 +500,6 @@ void getMouseHover(int x, int y)
             setcolor(COLOR(177, 188, 187));
             rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
             setcolor(prevColor);
-            refreshDisplay();
         }
     }
 }
@@ -500,7 +516,7 @@ void windowsInit()
     setcolor(accentColor2);
     setlinestyle(0, 0, 2);
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
-    refreshDisplay();
+    initBuffers();
 }
 
 void write(int left, int right)
