@@ -82,6 +82,8 @@ void drawArrowsHorizontal();
 void drawHorizBar();
 void wordWrapAll();
 void displayRows();
+void wordWrapAll();
+void alltextToNonWrap();
 
 void drawCursor(Cursor cursor)
 {
@@ -261,6 +263,10 @@ int page = 0;
 
 void displayRows()
 {
+    if (editor.isWordWrap)
+        wordWrapAll();
+    else
+        alltextToNonWrap();
     setactivepage(!page);
     page=!page;
     drawIcons();
@@ -362,11 +368,11 @@ void setTextFont()
         lengthError = 1.3;
         break;
     case 2:
-        settextstyle(SMALL_FONT, 0, 10);
+        settextstyle(SMALL_FONT, 0, 0);
         lengthError = 1;
         break;
     case 3:
-        settextstyle(SANS_SERIF_FONT, 0, 10);
+        settextstyle(SANS_SERIF_FONT, 0, 0);
         lengthError = 1;
         break;
     case 4:
@@ -493,15 +499,7 @@ void getButtonClick(int x, int y)
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
         swapbuffers();
-        if (editor.isWordWrap)
-        {
-            wordWrapAll();
-            displayRows();
-        }
-        else
-        {
-            displayRows();
-        }
+        displayRows();
     }
 }
 
@@ -633,6 +631,36 @@ void write(int left, int right)
     }
 }*/
 
+void alltextToNonWrap()
+{
+    editor.rowCount = 0;
+    for (int i = 0; i < 10000; i++)
+    {
+        delete editor.row[i].text;
+        editor.row[i].text = new char[10000];
+    }
+    int indexRand = 0;
+    for (int i=0; alltext[i]; i++)
+    {
+        editor.row[editor.rowCount].text[indexRand++] = alltext[i];
+        ///cout<<editor.row[editor.rowCount].text[indexRand-1]<<'\n';
+        editor.row[editor.rowCount].text[indexRand] = 0;
+        if (alltext[i] == '\n')
+        {
+            indexRand = 0;
+            editor.rowCount++;
+        }
+    }
+    editor.rowCount -=- 1;
+    /**char *p;
+    p = strtok (alltext, "\n");
+    while (p)
+          {
+           strcpy(editor.row[editor.rowCount++].text,p);
+           p = strtok (NULL, "\n");
+          }*/
+}
+
 void wordWrapAll()
 {
     setTextFont();
@@ -720,25 +748,42 @@ void readText(char *location)
         else if (curr == KEY_DOWN)
             shiftDown();
         else if (curr == KEY_LEFT)
-            shiftLeft();
+        shiftLeft();
         else if (curr == KEY_RIGHT)
             shiftRight();
+        else if (curr == 8) ///BACKSPACE
+        {
+            if (indexText)
+            {
+                indexText--;
+                alltext[indexText] = 0;
+                if (cursor.col == 0)
+                {
+                    cursor.lin--;
+                    cursor.col = strlen(editor.row[cursor.lin].text) - 1;
+                }
+                else cursor.col--;
+                displayRows();
+            }
+        }
         else if(curr != NULL)
         {
             /// text[lgtext].c = curr;
             if (curr == 9)
             {
                 curr=' ';
+                /**editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' ';
-                editor.row[cursor.lin].text[cursor.col++] = ' ';
-                editor.row[cursor.lin].text[cursor.col++] = ' ';
+                editor.row[cursor.lin].text[cursor.col++] = ' '; */
+                cursor.col+=3;
                 alltext[indexText++] = curr;
                 alltext[indexText++] = curr;
                 alltext[indexText++] = curr;
                 /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
-            editor.row[cursor.lin].text[cursor.col] = curr;
-            editor.row[cursor.lin].text[cursor.col + 1] = 0;
+
+            /**editor.row[cursor.lin].text[cursor.col] = curr;
+            editor.row[cursor.lin].text[cursor.col + 1] = 0;**/
 
             alltext[indexText++] = curr;
             alltext[indexText] = 0;
@@ -746,24 +791,24 @@ void readText(char *location)
             /// setPosChar(&curr);
             if (curr == 13)
             {
-                editor.row[cursor.lin].text[cursor.col] = '\n';
+                /**editor.row[cursor.lin].text[cursor.col] = '\n';
+                editor.rowCount++;*/
                 cursor.lin++;
-                editor.rowCount++;
                 cursor.col = 0;
 
                 alltext[indexText - 1] = '\n';
             }
             else
                 cursor.col++;
-            if (editor.isWordWrap) wordWrapAll();
             displayRows();
         }
 
         /// lgtext++;
+        cout<<cursor.col<<'\n';
         curr = getch();
     }
 }
-
+///TOILET BRB
 int main(int argn, char *argc[])
 {
     windowsInit();
