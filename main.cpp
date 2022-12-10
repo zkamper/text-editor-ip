@@ -64,10 +64,10 @@ struct editorConfig
     int rowCount = 1;
 } editor, editorWrap;
 
-struct cursor
+struct Cursor
 {
     int lin = 0, col = 0;
-} cursor;
+} cursor, cursorWrap;
 
 
 
@@ -80,11 +80,16 @@ void drawHorizBar();
 void wordWrapAll();
 void displayRows();
 
-void drawCursor()
+void drawCursor(Cursor cursor)
 {
     int x = 8;
-    if(editor.row[cursor.lin].text != NULL)
-        x+=textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));
+
+    if(editor.isWordWrap == 0)
+      {if(editor.row[cursor.lin].text != NULL)
+        x+=textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));}
+    else
+        if(editorWrap.row[cursor.lin].text != NULL)
+        x+=textwidth(subStr(editorWrap.row[cursor.lin].text,0,cursor.col));
     int y = textheight("String")*cursor.lin;
     int prevColor = getcolor();
     setcolor(accentColor3);
@@ -279,7 +284,9 @@ void displayRows()
             outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
             y += textheight(editorWrap.row[i].text);
         }
-    drawCursor();
+    if (editor.isWordWrap == 0)
+        drawCursor(cursor);
+    else    drawCursor(cursorWrap);
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
     swapbuffers();
@@ -640,7 +647,7 @@ void wordWrapAll()
     char *p;
     editorWrap.rowCount = 0;
     /// de editat
-    cursor.lin = cursor.col = 0;
+    cursorWrap.lin = cursorWrap.col = 0;
     lg = strlen(alltext);
     while (1)
     {
@@ -650,35 +657,36 @@ void wordWrapAll()
             if (alltext[right] == '\n' || alltext[right] == ' ' || right == lg - 1)
             {
                 /// enter, spatiu sau finalul stringului mare
-                if (textwidth(editorWrap.row[cursor.lin].text) + textwidth(subStr(p, 0, strlen(p) - 2)) + 29 <= winLength)
-                    strcat(editorWrap.row[cursor.lin].text, p);
+                if (textwidth(editorWrap.row[cursorWrap.lin].text) + textwidth(subStr(p, 0, strlen(p) - 2)) + 29 <= winLength)
+                    {strcat(editorWrap.row[cursorWrap.lin].text, p);}
                 else
                 {
-                    cursor.lin++;
-                    strcpy(editorWrap.row[cursor.lin].text, p);
+                    cursorWrap.lin++;
+                    strcpy(editorWrap.row[cursorWrap.lin].text, p);
                 }
                 if (alltext[right] == '\n')
-                    cursor.lin++;
+                    cursorWrap.lin++;
                 break;
             }
             if (textwidth(p) + 29 > winLength)
             { /// cuv mai mare decat tot randul
-                if (editorWrap.row[cursor.lin].text[0])
-                    cursor.lin++;
-                strcpy(editorWrap.row[cursor.lin].text, p);
-                editorWrap.row[cursor.lin].text[strlen(editorWrap.row[cursor.lin].text) - 1] = 0;
-                cursor.lin++;
-                editorWrap.row[cursor.lin].text[0] = alltext[right];
-                editorWrap.row[cursor.lin].text[1] = 0;
+                if (editorWrap.row[cursorWrap.lin].text[0])
+                    cursorWrap.lin++;
+                strcpy(editorWrap.row[cursorWrap.lin].text, p);
+                editorWrap.row[cursorWrap.lin].text[strlen(editorWrap.row[cursorWrap.lin].text) - 1] = 0;
+                cursorWrap.lin++;
+                editorWrap.row[cursorWrap.lin].text[0] = alltext[right];
+                editorWrap.row[cursorWrap.lin].text[1] = 0;
                 break;
             }
         }
         left = right + 1;
-        if (left == lg)
+        if (left == lg || !lg)
             break;
     }
-    editorWrap.rowCount = cursor.lin + 1;
-    cursor.col = strlen(editorWrap.row[cursor.col].text);
+    editorWrap.rowCount = cursorWrap.lin + 1;
+    cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
+    ///cout<< cursor.lin << ' ' << cursor.col << '\n';
 }
 
 void readText(char *location)
@@ -725,6 +733,7 @@ void readText(char *location)
             }
             else
                 cursor.col++;
+            if (editor.isWordWrap) wordWrapAll();
             displayRows();
         }
 
