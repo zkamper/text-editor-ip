@@ -7,6 +7,7 @@
 #define NMAX 10000
 #include <fstream>
 #include <stdio.h>
+
 using namespace std;
 
 ofstream fout("dd.txt");
@@ -68,17 +69,7 @@ struct cursor
     int lin = 0, col = 0;
 } cursor;
 
-void drawCursor()
-{
-    cout<<cursor.lin<<" "<<cursor.col<<endl;
-    int x = 8 + textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));
-    int y = textheight(editor.row[cursor.lin].text)*cursor.lin;
-    cout<<x<<" "<<y<<endl;
-    int prevColor = getcolor();
-    setcolor(accentColor3);
-    line(x-currDisplayOffset,y-currDisplayOffset2,x-currDisplayOffset,y-currDisplayOffset2+textheight(editor.row[cursor.lin].text));
-    setcolor(prevColor);
-}
+
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
@@ -88,6 +79,18 @@ void drawArrowsHorizontal();
 void drawHorizBar();
 void wordWrapAll();
 void displayRows();
+
+void drawCursor()
+{
+    int x = 8;
+    if(editor.row[cursor.lin].text != NULL)
+        x+=textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));
+    int y = textheight("String")*cursor.lin;
+    int prevColor = getcolor();
+    setcolor(accentColor3);
+    line(x-currDisplayOffset,y-currDisplayOffset2,x-currDisplayOffset,y-currDisplayOffset2+textheight("String"));
+    setcolor(prevColor);
+}
 
 void openTxt(char *location)
 {
@@ -138,7 +141,7 @@ void drawIcons()
     saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
 
     int offset = 5;
-    saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 125;
+    saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 100;
     saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
 
     saveButton.b.x = offset;
@@ -478,6 +481,7 @@ void getButtonClick(int x, int y)
         wordWrap.isSet = 1 - wordWrap.isSet;
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
+        swapbuffers();
         if (editor.isWordWrap)
         {
             wordWrapAll();
@@ -487,7 +491,6 @@ void getButtonClick(int x, int y)
             displayRows();
         }
     }
-    swapbuffers();
 }
 
 
@@ -532,6 +535,8 @@ void windowsInit()
     setlinestyle(0, 0, 2);
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
     initBuffer();
+    setTextFont();
+    line(8,saveButton.buttonHeight+10,8,saveButton.buttonHeight+10+textheight("String"));
     swapbuffers();
 }
 
@@ -622,6 +627,9 @@ void wordWrapAll()
 {
     setTextFont();
     strcpy(alltext, "");
+    if(editor.row[0].text[0] == NULL)
+        {cout<<"CANT WORDWRAP";
+        return;}
     for (int i = 0; i < editor.rowCount; i++)
         strcat(alltext, editor.row[i].text);
     /// de editat
