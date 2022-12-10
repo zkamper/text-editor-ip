@@ -64,6 +64,9 @@ struct editorConfig
     int rowCount = 1;
 } editor, editorWrap;
 
+char alltext[1000000];
+int indexText = 0;
+
 struct Cursor
 {
     int lin = 0, col = 0;
@@ -85,10 +88,11 @@ void drawCursor(Cursor cursor)
     int x = 8;
 
     if(editor.isWordWrap == 0)
-      {if(editor.row[cursor.lin].text != NULL)
-        x+=textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));}
-    else
-        if(editorWrap.row[cursor.lin].text != NULL)
+    {
+        if(editor.row[cursor.lin].text != NULL)
+            x+=textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));
+    }
+    else if(editorWrap.row[cursor.lin].text != NULL)
         x+=textwidth(subStr(editorWrap.row[cursor.lin].text,0,cursor.col));
     int y = textheight("String")*cursor.lin;
     int prevColor = getcolor();
@@ -494,7 +498,8 @@ void getButtonClick(int x, int y)
             wordWrapAll();
             displayRows();
         }
-        else{
+        else
+        {
             displayRows();
         }
     }
@@ -628,21 +633,24 @@ void write(int left, int right)
     }
 }*/
 
-char alltext[10000];
-
 void wordWrapAll()
 {
     setTextFont();
-    strcpy(alltext, "");
     if(editor.row[0].text[0] == NULL)
-        {cout<<"CANT WORDWRAP";
-        return;}
+    {
+        cout<<"CANT WORDWRAP";
+        return;
+    }
+    /**
+    strcpy(alltext, "");
     for (int i = 0; i < editor.rowCount; i++)
         strcat(alltext, editor.row[i].text);
-    /// de editat
+    */
     for (int i = 0; i < 10000; i++)
-    {delete editorWrap.row[i].text;
-        editorWrap.row[i].text = new char[10000];}
+    {
+        delete editorWrap.row[i].text;
+        editorWrap.row[i].text = new char[10000];
+    }
     int left = 0, right, lg;
     char *p;
     editorWrap.rowCount = 0;
@@ -658,7 +666,9 @@ void wordWrapAll()
             {
                 /// enter, spatiu sau finalul stringului mare
                 if (textwidth(editorWrap.row[cursorWrap.lin].text) + textwidth(subStr(p, 0, strlen(p) - 2)) + 29 <= winLength)
-                    {strcat(editorWrap.row[cursorWrap.lin].text, p);}
+                {
+                    strcat(editorWrap.row[cursorWrap.lin].text, p);
+                }
                 else
                 {
                     cursorWrap.lin++;
@@ -669,7 +679,8 @@ void wordWrapAll()
                 break;
             }
             if (textwidth(p) + 29 > winLength)
-            { /// cuv mai mare decat tot randul
+            {
+                /// cuv mai mare decat tot randul
                 if (editorWrap.row[cursorWrap.lin].text[0])
                     cursorWrap.lin++;
                 strcpy(editorWrap.row[cursorWrap.lin].text, p);
@@ -717,10 +728,20 @@ void readText(char *location)
             /// text[lgtext].c = curr;
             if (curr == 9)
             {
+                curr=' ';
+                editor.row[cursor.lin].text[cursor.col++] = ' ';
+                editor.row[cursor.lin].text[cursor.col++] = ' ';
+                editor.row[cursor.lin].text[cursor.col++] = ' ';
+                alltext[indexText++] = curr;
+                alltext[indexText++] = curr;
+                alltext[indexText++] = curr;
                 /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
             editor.row[cursor.lin].text[cursor.col] = curr;
             editor.row[cursor.lin].text[cursor.col + 1] = 0;
+
+            alltext[indexText++] = curr;
+            alltext[indexText] = 0;
 
             /// setPosChar(&curr);
             if (curr == 13)
@@ -728,8 +749,9 @@ void readText(char *location)
                 editor.row[cursor.lin].text[cursor.col] = '\n';
                 cursor.lin++;
                 editor.rowCount++;
-                /// strcpy(editor.row[editor.rowCount-1].text,"");
                 cursor.col = 0;
+
+                alltext[indexText - 1] = '\n';
             }
             else
                 cursor.col++;
