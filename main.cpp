@@ -316,11 +316,11 @@ void displayRows()
 
         cursorP.x -= currDisplayOffset;
         cursorP.y -= currDisplayOffset2;
+        printf("(%i, %i)\n",cursorP.x,cursorP.y);
         if (!(8 <= cursorP.x && cursorP.x <= winLength - 21))
             currDisplayOffset += (cursorP.x - winLength + 21 + textwidth("String"));
         if (!(0 <= cursorP.y && cursorP.y <= winHeight - saveButton.buttonHeight - 31 - textheight("String")))
-            ;
-        currDisplayOffset2 += (cursorP.y - winHeight + saveButton.buttonHeight + 31 + textheight("String"));
+            currDisplayOffset2 += (cursorP.y - winHeight + saveButton.buttonHeight + 31 + textheight("String"));
 
         currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
         currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
@@ -792,6 +792,7 @@ void readText(char *location)
             shiftRight();
         else if (curr == 8) ///BACKSPACE
         {
+            typedText = true;
             if (indexText)
             {
                 indexText--;
