@@ -32,7 +32,6 @@ double currBarOffset = 0;
 int page = 0;
 bool typedText = false;
 
-
 double offsetHeight, offsetLength;
 double currWordLength = 0;
 int currWordStart = 0;
@@ -75,8 +74,6 @@ struct Cursor
     int lin = 0, col = 0;
 } cursor, cursorWrap;
 
-
-
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
 void getMouseHover(int x, int y);
@@ -93,7 +90,7 @@ Point cursorPosition(Cursor cursor);
 bool cursorOutOfBounds(Cursor cursor)
 {
     Point cursorP = cursorPosition(cursor);
-    if(8 <= cursorP.x && cursorP.x <= winLength-21 && 0 <= cursorP.y && cursorP.y<=winHeight-saveButton.buttonHeight-31-textheight("String"))
+    if (8 <= cursorP.x && cursorP.x <= winLength - 21 && 0 <= cursorP.y && cursorP.y <= winHeight - saveButton.buttonHeight - 31 - textheight("String"))
         return false;
     return true;
 }
@@ -102,17 +99,17 @@ Point cursorPosition(Cursor cursor)
 {
     Point cursorP;
     int x = 8;
-    if(editor.isWordWrap == 0)
+    if (editor.isWordWrap == 0)
     {
-        if(editor.row[cursor.lin].text != NULL)
-            x+=textwidth(subStr(editor.row[cursor.lin].text,0,cursor.col));
+        if (editor.row[cursor.lin].text != NULL)
+            x += textwidth(subStr(editor.row[cursor.lin].text, 0, cursor.col));
     }
-    else if(editorWrap.row[cursor.lin].text != NULL)
-        x+=textwidth(subStr(editorWrap.row[cursor.lin].text,0,cursor.col));
-    int y = textheight("String")*cursor.lin;
+    else if (editorWrap.row[cursor.lin].text != NULL)
+        x += textwidth(subStr(editorWrap.row[cursor.lin].text, 0, cursor.col));
+    int y = textheight("String") * cursor.lin;
     cursorP.x = x;
     cursorP.y = y;
-    //printf("(%i, %i)",cursorP.x,cursorP.y);
+    // printf("(%i, %i)",cursorP.x,cursorP.y);
     return cursorP;
 }
 
@@ -123,7 +120,7 @@ void drawCursor(Cursor cursor)
     int y = cursorP.y;
     int prevColor = getcolor();
     setcolor(accentColor3);
-    line(x-currDisplayOffset,y-currDisplayOffset2,x-currDisplayOffset,y-currDisplayOffset2+textheight("String"));
+    line(x - currDisplayOffset, y - currDisplayOffset2, x - currDisplayOffset, y - currDisplayOffset2 + textheight("String"));
     setcolor(prevColor);
 }
 
@@ -213,7 +210,7 @@ void drawVerticalBar()
 {
     setfillstyle(1, accentColor2);
     int verticalBarLength = (double)(winHeight - saveButton.buttonHeight - 10 - 63) * barRaport2;
-    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight - 73) / (winHeight -saveButton.buttonHeight - 31+ displayOffset2);
+    int barDisplayOffset = (double)(currDisplayOffset2) * (winHeight - saveButton.buttonHeight - 73) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
     bar(winLength - 18, saveButton.buttonHeight + 31 + barDisplayOffset, winLength - 2, saveButton.buttonHeight + 31 + barDisplayOffset + verticalBarLength);
 }
 
@@ -248,7 +245,7 @@ void drawBar()
 void calculateBar(editorConfig editor)
 {
     Point cursorP;
-    if(editor.isWordWrap)
+    if (editor.isWordWrap)
         cursorP = cursorPosition(cursorWrap);
     else
         cursorP = cursorPosition(cursor);
@@ -290,12 +287,12 @@ void displayRows()
     else
         alltextToNonWrap();
     setactivepage(!page);
-    page=!page;
+    page = !page;
     drawIcons();
     int x = 8, y = 0;
     setTextFont();
     setfillstyle(1, bkColor);
-    if(editor.isWordWrap)
+    if (editor.isWordWrap)
         calculateBar(editorWrap);
     else
         calculateBar(editor);
@@ -306,17 +303,19 @@ void displayRows()
 
     if (typedText)
     {
-        typedText=false;
+        typedText = false;
         Point cursorP = {0, 0};
         if (!editor.isWordWrap)
+        {
             if (cursorOutOfBounds(cursor))
                 cursorP = cursorPosition(cursor);
-            else if (cursorOutOfBounds(cursorWrap))
-                cursorP = cursorPosition(cursorWrap);
-
+        }
+        else if (cursorOutOfBounds(cursorWrap))
+            cursorP = cursorPosition(cursorWrap);
+        printf("(%i, %i)\n", cursorP.x, cursorP.y);
         cursorP.x -= currDisplayOffset;
         cursorP.y -= currDisplayOffset2;
-        printf("(%i, %i)\n",cursorP.x,cursorP.y);
+        printf("(%i, %i)\n", cursorP.x, cursorP.y);
         if (!(8 <= cursorP.x && cursorP.x <= winLength - 21))
             currDisplayOffset += (cursorP.x - winLength + 21 + textwidth("String"));
         if (!(0 <= cursorP.y && cursorP.y <= winHeight - saveButton.buttonHeight - 31 - textheight("String")))
@@ -342,7 +341,7 @@ void displayRows()
         }
     if (editor.isWordWrap == 0)
         drawCursor(cursor);
-    else    
+    else
         drawCursor(cursorWrap);
     setviewport(0, 0, winLength, winHeight, 1);
     drawBar();
@@ -590,7 +589,7 @@ void windowsInit()
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
     initBuffer();
     setTextFont();
-    line(8,saveButton.buttonHeight+10,8,saveButton.buttonHeight+10+textheight("String"));
+    line(8, saveButton.buttonHeight + 10, 8, saveButton.buttonHeight + 10 + textheight("String"));
     swapbuffers();
 }
 
@@ -679,13 +678,13 @@ void alltextToNonWrap()
 {
     editor.rowCount = 0;
     for (int i = 0; i < 10000; i++)
-        editor.row[i].text[0]='\0';
-    cout<<editor.row[0].text<<endl;
+        editor.row[i].text[0] = '\0';
+    cout << editor.row[0].text << endl;
     int indexRand = 0;
-    for (int i=0; alltext[i]; i++)
+    for (int i = 0; alltext[i]; i++)
     {
         editor.row[editor.rowCount].text[indexRand++] = alltext[i];
-        ///cout<<editor.row[editor.rowCount].text[indexRand-1]<<'\n';
+        /// cout<<editor.row[editor.rowCount].text[indexRand-1]<<'\n';
         editor.row[editor.rowCount].text[indexRand] = 0;
         if (alltext[i] == '\n')
         {
@@ -693,7 +692,7 @@ void alltextToNonWrap()
             editor.rowCount++;
         }
     }
-    editor.rowCount -=- 1;
+    editor.rowCount -= -1;
     /**char *p;
     p = strtok (alltext, "\n");
     while (p)
@@ -706,9 +705,9 @@ void alltextToNonWrap()
 void wordWrapAll()
 {
     setTextFont();
-    if(editor.row[0].text[0] == NULL)
+    if (editor.row[0].text[0] == NULL)
     {
-        cout<<"CANT WORDWRAP";
+        cout << "CANT WORDWRAP";
         return;
     }
     /**
@@ -717,7 +716,7 @@ void wordWrapAll()
         strcat(alltext, editor.row[i].text);
     */
     for (int i = 0; i < 10000; i++)
-        editorWrap.row[i].text[0]='\0';
+        editorWrap.row[i].text[0] = '\0';
     int left = 0, right, lg;
     char *p;
     editorWrap.rowCount = 0;
@@ -764,7 +763,7 @@ void wordWrapAll()
     }
     editorWrap.rowCount = cursorWrap.lin + 1;
     cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
-    ///cout<< cursor.lin << ' ' << cursor.col << '\n';
+    /// cout<< cursor.lin << ' ' << cursor.col << '\n';
 }
 
 void readText(char *location)
@@ -787,10 +786,10 @@ void readText(char *location)
         else if (curr == KEY_DOWN)
             shiftDown();
         else if (curr == KEY_LEFT)
-        shiftLeft();
+            shiftLeft();
         else if (curr == KEY_RIGHT)
             shiftRight();
-        else if (curr == 8) ///BACKSPACE
+        else if (curr == 8) /// BACKSPACE
         {
             typedText = true;
             if (indexText)
@@ -802,21 +801,22 @@ void readText(char *location)
                     cursor.lin--;
                     cursor.col = strlen(editor.row[cursor.lin].text) - 1;
                 }
-                else cursor.col--;
+                else
+                    cursor.col--;
                 displayRows();
             }
         }
-        else if(curr != NULL)
+        else if (curr != NULL)
         {
             typedText = true;
             /// text[lgtext].c = curr;
             if (curr == 9)
             {
-                curr=' ';
+                curr = ' ';
                 /**editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' '; */
-                cursor.col+=3;
+                cursor.col += 3;
                 alltext[indexText++] = curr;
                 alltext[indexText++] = curr;
                 alltext[indexText++] = curr;
@@ -845,7 +845,7 @@ void readText(char *location)
         }
 
         /// lgtext++;
-        //cout<<cursor.col<<'\n';
+        // cout<<cursor.col<<'\n';
         curr = getch();
     }
 }
