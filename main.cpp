@@ -12,6 +12,7 @@ using namespace std;
 
 ofstream fout("dd.txt");
 
+
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton;
 Toggle wordWrap;
@@ -21,6 +22,8 @@ int bkColor = COLOR(221, 234, 235);      // Culoarea de fundal;
 int accentColor1 = COLOR(177, 187, 188); // Fundal butoane
 int accentColor2 = COLOR(99, 110, 109);  // Conturul de la hover la butoane
 int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
+int hlTextBk = BLUE; //COLOR(to search)
+int hlText = WHITE;  //COLOR(opus la tema normala)
 
 double displayOffset = 0;
 double displayOffset2 = 0;
@@ -31,6 +34,7 @@ double barRaport2;
 double currBarOffset = 0;
 int page = 0;
 bool typedText = false;
+bool isHl = false;
 
 double offsetHeight, offsetLength;
 double currWordLength = 0;
@@ -71,12 +75,14 @@ int indexText = 0;
 
 struct Cursor
 {
-    int lin = 0, col = 0;
+    int lin = 0, col = 0, lin2 = 0, col2 = 0;
 } cursor, cursorWrap;
 
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
 void getMouseHover(int x, int y);
+void getRClickUp(int x, int y);
+void getRClickDown(int x, int y);
 void debugFunct();
 void drawArrowsHorizontal();
 void drawHorizBar();
@@ -134,12 +140,16 @@ void openTxt(char *location)
         FILE *myFile = fopen(location, "r");
         while (!feof(myFile))
         {
-            fgets(editor.row[cursor.lin].text, 1000, myFile);
-            cursor.lin++;
+            char *s = (char*)malloc(1000);
+            fgets(s, 1000, myFile);
+            strcat(alltext,s);
+            indexText+=strlen(s);
+            indexText--;
             editor.rowCount++;
+            free(s);
         }
-        cursor.col = strlen(editor.row[cursor.lin - 1].text);
     }
+    
     displayRows();
 }
 
@@ -196,6 +206,9 @@ void drawIcons()
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
+
+    registermousehandler(WM_RBUTTONDOWN,getRClickDown);
+    registermousehandler(WM_RBUTTONUP,getRClickUp);
 }
 
 void drawHorizBar()
@@ -312,10 +325,8 @@ void displayRows()
         }
         else if (cursorOutOfBounds(cursorWrap))
             cursorP = cursorPosition(cursorWrap);
-        printf("(%i, %i)\n", cursorP.x, cursorP.y);
         cursorP.x -= currDisplayOffset;
         cursorP.y -= currDisplayOffset2;
-        printf("(%i, %i)\n", cursorP.x, cursorP.y);
         if (!(8 <= cursorP.x && cursorP.x <= winLength - 21))
             currDisplayOffset += (cursorP.x - winLength + 21 + textwidth("String"));
         if (!(0 <= cursorP.y && cursorP.y <= winHeight - saveButton.buttonHeight - 31 - textheight("String")))
@@ -327,10 +338,79 @@ void displayRows()
         currDisplayOffset2 = (currDisplayOffset2 < 0) ? 0 : currDisplayOffset2;
     }
 
+    int bkPrev;
+    int colPrev;
+
     if (!editor.isWordWrap)
         for (int i = 0; i < editor.rowCount; i++)
         {
-            outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editor.row[i].text);
+            if(cursor.lin==i && cursor.lin == cursor.lin2 && isHl)
+            {
+                
+                bkPrev = getbkcolor();
+                colPrev = getcolor();
+                char *p = subStr(editor.row[i].text,0,cursor.col-1);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
+                setcolor(hlText);
+                setbkcolor(hlTextBk);
+                char *p2 = subStr(editor.row[i].text,cursor.col-0,cursor.col2);
+                outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
+                char *p3 = subStr(editor.row[i].text,cursor.col2+1,strlen(editor.row[i].text));
+                setbkcolor(bkPrev);
+                setcolor(colPrev);
+                outtextxy(x-currDisplayOffset+textwidth(p)+textwidth(p2),y-currDisplayOffset2,p3);
+                isHl = false;
+            }
+            else if(cursor.lin == i && cursor.lin2 == i+1 && isHl)
+            {
+                bkPrev = getbkcolor();
+                colPrev = getcolor();
+                char *p = subStr(editor.row[i].text,0,cursor.col-1);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
+                setcolor(hlText);
+                setbkcolor(hlTextBk);
+                char *p2 = subStr(editor.row[i].text,cursor.col,strlen(editor.row[i].text));
+                outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
+                char *p3 = subStr(editor.row[i+1].text,0,cursor.col2);
+                y+=textheight(editor.row[i].text);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
+                char *p4 = subStr(editor.row[i+1].text,cursor.col2+1,strlen(editor.row[i+1].text));
+                setbkcolor(bkPrev);
+                setcolor(colPrev);
+                outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
+                isHl = false;
+                cout<<"Afisat";
+                i++;
+            }
+            else if(cursor.lin==i && i+1 < cursor.lin2 && isHl)
+            {
+                bkPrev = getbkcolor();
+                colPrev = getcolor();
+                char *p = subStr(editor.row[i].text,0,cursor.col-1);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
+                setcolor(hlText);
+                setbkcolor(hlTextBk);
+                char *p2 = subStr(editor.row[i].text,cursor.col,strlen(editor.row[i].text));
+                outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
+                i++;
+                y+=textheight(editor.row[i].text);
+                while(i < cursor.lin2)
+                {
+                    outtextxy(x-currDisplayOffset,y-currDisplayOffset2,editor.row[i].text);
+                    i++;
+                    y+=textheight(editor.row[i].text);
+                }
+                textheight(editor.row[i].text);
+                char *p3 = subStr(editor.row[i].text,0,cursor.col2);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
+                char *p4 = subStr(editor.row[i].text,cursor.col2+1,strlen(editor.row[i].text));
+                setbkcolor(bkPrev);
+                setcolor(colPrev);
+                outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
+                isHl = false;
+            }
+            else
+                outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editor.row[i].text);
             y += textheight(editor.row[i].text);
         }
     else
@@ -577,6 +657,134 @@ void getMouseHover(int x, int y)
     swapbuffers();
 }
 
+void getRClickDown(int x, int y)
+{
+    Point cursorP;
+    cursorP.x = x-8+currDisplayOffset;
+    cursorP.y = y - saveButton.buttonHeight - 10 + currDisplayOffset2;
+
+    int newLin = -1,newCol = -1;
+    newLin = cursorP.y / textheight("String");
+    if(editor.isWordWrap && newLin > editorWrap.rowCount-1)
+        newLin = editorWrap.rowCount-1;
+    if(!editor.isWordWrap && newLin > editor.rowCount - 1)
+        newLin = editor.rowCount - 1;
+    if(editor.isWordWrap)
+    {
+        for(int i = 0 ; editorWrap.row[newLin].text[i] ; i++)
+            if(textwidth(subStr(editorWrap.row[newLin].text,0,i)) > cursorP.x)
+            {
+                newCol = i;
+                if(editorWrap.row[newLin].text[i] == '\n')
+                    newCol--;
+                break;
+            }
+        if(newCol == -1)
+            newCol = strlen(editorWrap.row[newLin].text)-1;
+        if(editorWrap.row[newLin].text[newCol] == '\n')
+            newCol--;
+        
+    }
+    else
+    {
+        for(int i = 0 ; editor.row[newLin].text[i] ; i++)
+            if(textwidth(subStr(editor.row[newLin].text,0,i)) > cursorP.x)
+            {
+                newCol = i;
+                if(editor.row[newLin].text[i] == '\n')
+                    newCol--;
+                break;
+            }
+        if(newCol == -1)
+            newCol = strlen(editor.row[newLin].text)-1;
+        if(editor.row[newLin].text[newCol] == '\n')
+            newCol--;
+    }
+    if(editor.isWordWrap)
+        {cursorWrap.col = newCol;cursorWrap.lin = newLin;}
+    else
+        {cursor.col = newCol;cursor.lin = newLin;}
+    //cout<<cursor.lin<<" "<<cursor.col;
+    //displayRows();
+}
+
+void getRClickUp(int x, int y)
+{
+    Point cursorP;
+    cursorP.x = x-8+currDisplayOffset;
+    cursorP.y = y - saveButton.buttonHeight - 10 + currDisplayOffset2;
+
+    int newLin = -1,newCol = -1;
+    newLin = cursorP.y / textheight("String");
+    if(editor.isWordWrap && newLin > editorWrap.rowCount-1)
+        newLin = editorWrap.rowCount-1;
+    if(!editor.isWordWrap && newLin > editor.rowCount - 1)
+        newLin = editor.rowCount - 1;
+    if(editor.isWordWrap)
+    {
+        for(int i = 0 ; editorWrap.row[newLin].text[i] ; i++)
+            if(textwidth(subStr(editorWrap.row[newLin].text,0,i)) > cursorP.x)
+            {
+                newCol = i;
+                if(editorWrap.row[newLin].text[i] == '\n')
+                    newCol--;
+                break;
+            }
+        if(newCol == -1)
+            newCol = strlen(editorWrap.row[newLin].text)-1;
+        if(editorWrap.row[newLin].text[newCol] == '\n')
+            newCol--;
+        
+    }
+    else
+    {
+        for(int i = 0 ; editor.row[newLin].text[i] ; i++)
+            if(textwidth(subStr(editor.row[newLin].text,0,i)) > cursorP.x)
+            {
+                newCol = i;
+                if(editor.row[newLin].text[i] == '\n')
+                    newCol--;
+                break;
+            }
+        if(newCol == -1)
+            newCol = strlen(editor.row[newLin].text)-1;
+        if(editor.row[newLin].text[newCol] == '\n')
+            newCol--;
+    }
+    if(editor.isWordWrap)
+        {cursorWrap.col2 = newCol;cursorWrap.lin2 = newLin;}
+    else
+        {cursor.col2 = newCol;cursor.lin2 = newLin;}
+    if(editor.isWordWrap)
+    {
+        if(cursorWrap.lin == cursorWrap.lin2 && cursorWrap.col > cursorWrap.col2)
+            swap(cursorWrap.col,cursorWrap.col2);
+        if(cursorWrap.lin > cursorWrap.lin2)
+        {
+            swap(cursorWrap.col,cursorWrap.col2);
+            swap(cursorWrap.lin,cursorWrap.lin2);
+        }
+    }
+    else
+    {
+        if(cursor.lin == cursor.lin2 && cursor.col > cursor.col2)
+            swap(cursor.col,cursor.col2);
+        if(cursor.lin > cursor.lin2)
+        {
+            swap(cursor.col,cursor.col2);
+            swap(cursor.lin,cursor.lin2);
+        }
+    }
+    if(editor.isWordWrap)
+    {
+        printf("START(%i %i) FINISH(%i %i)\n",cursorWrap.lin,cursorWrap.col,cursorWrap.lin2,cursorWrap.col2);
+    }
+    else
+        printf("START(%i %i) FINISH(%i %i)\n",cursor.lin,cursor.col,cursor.lin2,cursor.col2);
+    isHl = true;
+    displayRows();
+}
+
 void windowsInit()
 {
     /// initializare fereastra
@@ -593,6 +801,8 @@ void windowsInit()
     setTextFont();
     line(8, saveButton.buttonHeight + 10, 8, saveButton.buttonHeight + 10 + textheight("String"));
     swapbuffers();
+
+    
 }
 
 void write(int left, int right)
@@ -681,7 +891,6 @@ void alltextToNonWrap()
     editor.rowCount = 0;
     for (int i = 0; i < 10000; i++)
         editor.row[i].text[0] = '\0';
-    cout << editor.row[0].text << endl;
     int indexRand = 0;
     for (int i = 0; alltext[i]; i++)
     {
@@ -827,7 +1036,6 @@ void readText(char *location)
 
             /**editor.row[cursor.lin].text[cursor.col] = curr;
             editor.row[cursor.lin].text[cursor.col + 1] = 0;**/
-
             alltext[indexText++] = curr;
             alltext[indexText] = 0;
 
