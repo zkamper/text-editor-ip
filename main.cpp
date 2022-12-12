@@ -149,7 +149,7 @@ void openTxt(char *location)
             free(s);
         }
     }
-    
+
     displayRows();
 }
 
@@ -346,7 +346,7 @@ void displayRows()
         {
             if(cursor.lin==i && cursor.lin == cursor.lin2 && isHl)
             {
-                
+
                 bkPrev = getbkcolor();
                 colPrev = getcolor();
                 char *p = subStr(editor.row[i].text,0,cursor.col-1);
@@ -683,7 +683,7 @@ void getRClickDown(int x, int y)
             newCol = strlen(editorWrap.row[newLin].text)-1;
         if(editorWrap.row[newLin].text[newCol] == '\n')
             newCol--;
-        
+
     }
     else
     {
@@ -734,7 +734,7 @@ void getRClickUp(int x, int y)
             newCol = strlen(editorWrap.row[newLin].text)-1;
         if(editorWrap.row[newLin].text[newCol] == '\n')
             newCol--;
-        
+
     }
     else
     {
@@ -802,7 +802,7 @@ void windowsInit()
     line(8, saveButton.buttonHeight + 10, 8, saveButton.buttonHeight + 10 + textheight("String"));
     swapbuffers();
 
-    
+
 }
 
 void write(int left, int right)
@@ -898,7 +898,7 @@ void alltextToNonWrap()
         /// cout<<editor.row[editor.rowCount].text[indexRand-1]<<'\n';
         editor.row[editor.rowCount].text[indexRand] = 0;
         if (alltext[i] == '\n')
-        {
+        {cout<<1;
             indexRand = 0;
             editor.rowCount++;
         }
@@ -975,10 +975,24 @@ void wordWrapAll()
     editorWrap.rowCount = cursorWrap.lin + 1;
     cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
     /// cout<< cursor.lin << ' ' << cursor.col << '\n';
+    ///de implementat cursorul pentru Wrap... cand citim textul
+}
+
+int cursorToIndex(int lin, int col)
+{
+ int nr=0, i;
+ for (i=0; i<lin; i++)
+      if (editor.isWordWrap == 0)
+      nr+=strlen(editor.row[i].text);
+      else
+      nr+=strlen(editorWrap.row[i].text);
+ nr+=col;
+ return nr;
 }
 
 void readText(char *location)
-{
+{int c1,c2;
+ char temp[2];
     for (int i = 0; i < 10000; i++)
     {
         editor.row[i].text = (char *)malloc(10000);
@@ -1021,36 +1035,44 @@ void readText(char *location)
         {
             typedText = true;
             /// text[lgtext].c = curr;
-            if (curr == 9)
+            if (curr == 9) ///TAB
             {
                 curr = ' ';
                 /**editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' '; */
+                c1=cursorToIndex(cursor.lin, cursor.col);
+                c2=cursorToIndex(cursor.lin2, cursor.col2);
                 cursor.col += 3;
-                alltext[indexText++] = curr;
-                alltext[indexText++] = curr;
-                alltext[indexText++] = curr;
+                cursor.col2=cursor.col;
+                inserare(alltext,"   ",c1,c2+1);
+                indexText+=3;
                 /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
 
             /**editor.row[cursor.lin].text[cursor.col] = curr;
             editor.row[cursor.lin].text[cursor.col + 1] = 0;**/
-            alltext[indexText++] = curr;
-            alltext[indexText] = 0;
+            temp[0]=curr; temp[1]=0;
+            c1=cursorToIndex(cursor.lin, cursor.col);
+            c2=cursorToIndex(cursor.lin2, cursor.col2);
+            cursor.col2=cursor.col;
+            inserare(alltext,temp,c1,c2);
+            indexText++;
 
             /// setPosChar(&curr);
             if (curr == 13)
             {
                 /**editor.row[cursor.lin].text[cursor.col] = '\n';
                 editor.rowCount++;*/
+                alltext[c1]= '\n';
+
                 cursor.lin++;
                 cursor.col = 0;
-
-                alltext[indexText - 1] = '\n';
+                cursor.lin2++;
+                cursor.col2 = 0;
             }
             else
-                cursor.col++;
+                {cursor.col++; cursor.col2++;}
             displayRows();
         }
 
