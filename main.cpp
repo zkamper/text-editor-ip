@@ -523,6 +523,7 @@ void getButtonClick(int x, int y)
             {
                 font = (font + 1) % 11;
                 setTextFont();
+                typedText = true;
                 displayRows();
                 fontButton.font = font;
                 drawButton(fontButton);
@@ -544,6 +545,7 @@ void getButtonClick(int x, int y)
         editor.isWordWrap = wordWrap.isSet;
         drawToggle(wordWrap);
         swapbuffers();
+        typedText = true;
         displayRows();
     }
 }
