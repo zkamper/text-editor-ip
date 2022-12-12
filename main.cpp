@@ -349,32 +349,32 @@ void displayRows()
 
                 bkPrev = getbkcolor();
                 colPrev = getcolor();
-                char *p = subStr(editor.row[i].text,0,cursor.col-1);
+                char *p = subStr(editor.row[i].text,0,cursor.col2-1);
                 outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
                 setcolor(hlText);
                 setbkcolor(hlTextBk);
-                char *p2 = subStr(editor.row[i].text,cursor.col-0,cursor.col2);
+                char *p2 = subStr(editor.row[i].text,cursor.col2-0,cursor.col);
                 outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
-                char *p3 = subStr(editor.row[i].text,cursor.col2+1,strlen(editor.row[i].text));
+                char *p3 = subStr(editor.row[i].text,cursor.col+1,strlen(editor.row[i].text));
                 setbkcolor(bkPrev);
                 setcolor(colPrev);
                 outtextxy(x-currDisplayOffset+textwidth(p)+textwidth(p2),y-currDisplayOffset2,p3);
                 isHl = false;
             }
-            else if(cursor.lin == i && cursor.lin2 == i+1 && isHl)
+            else if(cursor.lin2 == i && cursor.lin == i+1 && isHl)
             {
                 bkPrev = getbkcolor();
                 colPrev = getcolor();
-                char *p = subStr(editor.row[i].text,0,cursor.col-1);
+                char *p = subStr(editor.row[i].text,0,cursor.col2-1);
                 outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
                 setcolor(hlText);
                 setbkcolor(hlTextBk);
-                char *p2 = subStr(editor.row[i].text,cursor.col,strlen(editor.row[i].text));
+                char *p2 = subStr(editor.row[i].text,cursor.col2,strlen(editor.row[i].text));
                 outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
-                char *p3 = subStr(editor.row[i+1].text,0,cursor.col2);
+                char *p3 = subStr(editor.row[i+1].text,0,cursor.col);
                 y+=textheight(editor.row[i].text);
                 outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
-                char *p4 = subStr(editor.row[i+1].text,cursor.col2+1,strlen(editor.row[i+1].text));
+                char *p4 = subStr(editor.row[i+1].text,cursor.col+1,strlen(editor.row[i+1].text));
                 setbkcolor(bkPrev);
                 setcolor(colPrev);
                 outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
@@ -382,28 +382,28 @@ void displayRows()
                 cout<<"Afisat";
                 i++;
             }
-            else if(cursor.lin==i && i+1 < cursor.lin2 && isHl)
+            else if(cursor.lin2==i && i+1 < cursor.lin && isHl)
             {
                 bkPrev = getbkcolor();
                 colPrev = getcolor();
-                char *p = subStr(editor.row[i].text,0,cursor.col-1);
+                char *p = subStr(editor.row[i].text,0,cursor.col2-1);
                 outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
                 setcolor(hlText);
                 setbkcolor(hlTextBk);
-                char *p2 = subStr(editor.row[i].text,cursor.col,strlen(editor.row[i].text));
+                char *p2 = subStr(editor.row[i].text,cursor.col2,strlen(editor.row[i].text));
                 outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
                 i++;
                 y+=textheight(editor.row[i].text);
-                while(i < cursor.lin2)
+                while(i < cursor.lin)
                 {
                     outtextxy(x-currDisplayOffset,y-currDisplayOffset2,editor.row[i].text);
                     i++;
                     y+=textheight(editor.row[i].text);
                 }
                 textheight(editor.row[i].text);
-                char *p3 = subStr(editor.row[i].text,0,cursor.col2);
+                char *p3 = subStr(editor.row[i].text,0,cursor.col);
                 outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
-                char *p4 = subStr(editor.row[i].text,cursor.col2+1,strlen(editor.row[i].text));
+                char *p4 = subStr(editor.row[i].text,cursor.col+1,strlen(editor.row[i].text));
                 setbkcolor(bkPrev);
                 setcolor(colPrev);
                 outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
@@ -416,7 +416,73 @@ void displayRows()
     else
         for (int i = 0; i < editorWrap.rowCount; i++)
         {
-            outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
+            if(cursorWrap.lin==i && cursorWrap.lin == cursorWrap.lin2 && isHl)
+            {
+
+                bkPrev = getbkcolor();
+                colPrev = getcolor();
+                char *p = subStr(editorWrap.row[i].text,0,cursorWrap.col2-1);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
+                setcolor(hlText);
+                setbkcolor(hlTextBk);
+                char *p2 = subStr(editorWrap.row[i].text,cursorWrap.col2-0,cursorWrap.col);
+                outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
+                char *p3 = subStr(editorWrap.row[i].text,cursorWrap.col+1,strlen(editorWrap.row[i].text));
+                setbkcolor(bkPrev);
+                setcolor(colPrev);
+                outtextxy(x-currDisplayOffset+textwidth(p)+textwidth(p2),y-currDisplayOffset2,p3);
+                isHl = false;
+            }
+            else if(cursorWrap.lin2 == i && cursorWrap.lin == i+1 && isHl)
+            {
+                bkPrev = getbkcolor();
+                colPrev = getcolor();
+                char *p = subStr(editorWrap.row[i].text,0,cursorWrap.col2-1);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
+                setcolor(hlText);
+                setbkcolor(hlTextBk);
+                char *p2 = subStr(editorWrap.row[i].text,cursorWrap.col2,strlen(editorWrap.row[i].text));
+                outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
+                char *p3 = subStr(editorWrap.row[i+1].text,0,cursorWrap.col);
+                y+=textheight(editorWrap.row[i].text);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
+                char *p4 = subStr(editorWrap.row[i+1].text,cursorWrap.col+1,strlen(editorWrap.row[i+1].text));
+                setbkcolor(bkPrev);
+                setcolor(colPrev);
+                outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
+                isHl = false;
+                cout<<"Afisat";
+                i++;
+            }
+            else if(cursorWrap.lin2==i && i+1 < cursorWrap.lin && isHl)
+            {
+                bkPrev = getbkcolor();
+                colPrev = getcolor();
+                char *p = subStr(editorWrap.row[i].text,0,cursorWrap.col2-1);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
+                setcolor(hlText);
+                setbkcolor(hlTextBk);
+                char *p2 = subStr(editorWrap.row[i].text,cursorWrap.col2,strlen(editorWrap.row[i].text));
+                outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
+                i++;
+                y+=textheight(editorWrap.row[i].text);
+                while(i < cursorWrap.lin)
+                {
+                    outtextxy(x-currDisplayOffset,y-currDisplayOffset2,editorWrap.row[i].text);
+                    i++;
+                    y+=textheight(editorWrap.row[i].text);
+                }
+                textheight(editorWrap.row[i].text);
+                char *p3 = subStr(editorWrap.row[i].text,0,cursorWrap.col);
+                outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
+                char *p4 = subStr(editorWrap.row[i].text,cursorWrap.col+1,strlen(editorWrap.row[i].text));
+                setbkcolor(bkPrev);
+                setcolor(colPrev);
+                outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
+                isHl = false;
+            }
+            else
+                outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
             y += textheight(editorWrap.row[i].text);
         }
     if (editor.isWordWrap == 0)
@@ -757,9 +823,9 @@ void getRClickUp(int x, int y)
         {cursor.col2 = newCol;cursor.lin2 = newLin;}
     if(editor.isWordWrap)
     {
-        if(cursorWrap.lin == cursorWrap.lin2 && cursorWrap.col > cursorWrap.col2)
+        if(cursorWrap.lin == cursorWrap.lin2 && cursorWrap.col < cursorWrap.col2)
             swap(cursorWrap.col,cursorWrap.col2);
-        if(cursorWrap.lin > cursorWrap.lin2)
+        if(cursorWrap.lin < cursorWrap.lin2)
         {
             swap(cursorWrap.col,cursorWrap.col2);
             swap(cursorWrap.lin,cursorWrap.lin2);
@@ -767,9 +833,9 @@ void getRClickUp(int x, int y)
     }
     else
     {
-        if(cursor.lin == cursor.lin2 && cursor.col > cursor.col2)
+        if(cursor.lin == cursor.lin2 && cursor.col < cursor.col2)
             swap(cursor.col,cursor.col2);
-        if(cursor.lin > cursor.lin2)
+        if(cursor.lin < cursor.lin2)
         {
             swap(cursor.col,cursor.col2);
             swap(cursor.lin,cursor.lin2);
@@ -898,7 +964,7 @@ void alltextToNonWrap()
         /// cout<<editor.row[editor.rowCount].text[indexRand-1]<<'\n';
         editor.row[editor.rowCount].text[indexRand] = 0;
         if (alltext[i] == '\n')
-        {cout<<1;
+        {   
             indexRand = 0;
             editor.rowCount++;
         }
@@ -915,6 +981,7 @@ void alltextToNonWrap()
 
 void wordWrapAll()
 {
+    int c1=cursorWrap.lin,c2=cursorWrap.col;
     setTextFont();
     if (editor.row[0].text[0] == NULL)
     {
@@ -974,6 +1041,8 @@ void wordWrapAll()
     }
     editorWrap.rowCount = cursorWrap.lin + 1;
     cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
+    cursorWrap.lin = c1;
+    cursorWrap.col = c2;
     /// cout<< cursor.lin << ' ' << cursor.col << '\n';
     ///de implementat cursorul pentru Wrap... cand citim textul
 }
@@ -1041,11 +1110,11 @@ void readText(char *location)
                 /**editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' '; */
-                c1=cursorToIndex(cursor.lin, cursor.col);
-                c2=cursorToIndex(cursor.lin2, cursor.col2);
+                c2=cursorToIndex(cursor.lin, cursor.col);
+                c1=cursorToIndex(cursor.lin2, cursor.col2);
                 cursor.col += 3;
                 cursor.col2=cursor.col;
-                inserare(alltext,"   ",c1,c2+1);
+                inserare(alltext,"   ",c1,c2);
                 indexText+=3;
                 /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
@@ -1053,9 +1122,10 @@ void readText(char *location)
             /**editor.row[cursor.lin].text[cursor.col] = curr;
             editor.row[cursor.lin].text[cursor.col + 1] = 0;**/
             temp[0]=curr; temp[1]=0;
-            c1=cursorToIndex(cursor.lin, cursor.col);
-            c2=cursorToIndex(cursor.lin2, cursor.col2);
-            cursor.col2=cursor.col;
+            c2=cursorToIndex(cursor.lin, cursor.col);
+            c1=cursorToIndex(cursor.lin2, cursor.col2);
+            cursor.col=cursor.col2;
+            cursor.lin=cursor.lin2;
             inserare(alltext,temp,c1,c2);
             indexText++;
 
