@@ -1192,6 +1192,8 @@ void readText(char *location)
                     {
                         cursor.lin--;
                         cursor.lin2 = cursor.lin;
+                        cursor.col = strlen(editor.row[cursor.lin].text)-1;
+                        cursor.col2 = cursor.col;
                     }
                 }
                 displayRows();
