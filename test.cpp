@@ -2,13 +2,11 @@
 #include <graphics.h>
 #include <iostream>
 #include "siruri.h"
-using namespace std;
+#include <windows.h>
 
-char a[]="notameamareeste";
-char b[]="gigantica";
+using namespace std;
 
 int main()
 {
- stergere(a,0,1);
- cout<<a;
+    cout<<"Hello world";
 }

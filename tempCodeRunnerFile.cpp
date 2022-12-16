@@ -1,1 +1,1 @@
-cout<<"ERROR";
+cout<<cursor.col<<" "<<cursor.col2;
