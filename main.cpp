@@ -7,13 +7,13 @@
 #define NMAX 10000
 #include <fstream>
 #include <stdio.h>
-//#include <thread>
+// #include <thread>
 #include <windows.h>
 
 using namespace std;
 
 double lengthError;
-Button saveButton, copyButton, pasteButton, fontButton;
+Button saveButton, copyButton, pasteButton, fontButton, openButton, cutButton;
 Toggle wordWrap;
 int font = 8; /// 8 - font recomandat, fara niciun offset
 double winLength, winHeight;
@@ -73,7 +73,7 @@ struct editorConfig
 
 char *clipboard;
 char alltext[1000000];
-int indexStart = 0, intdexFinish = 0;
+int indexStart = 0, indexFinish = 0;
 
 struct Cursor
 {
@@ -95,6 +95,36 @@ void wordWrapAll();
 void alltextToNonWrap();
 void setTextFont();
 
+
+void copy()
+{
+    if(!isHl)
+        return;
+    clipboard = subStr(alltext,indexStart,indexFinish-1);
+    cout<<clipboard<<endl;
+}
+
+void cut()
+{
+    copy();
+    stergere(alltext,indexStart,indexFinish);
+    indexFinish = indexStart;
+    typedText = true;
+    isHl = false;
+    displayRows();
+}
+
+void paste()
+{
+    if(!clipboard)
+        return;
+    inserare(alltext,clipboard,indexStart,indexFinish);
+    indexStart+=strlen(clipboard);
+    indexFinish = indexStart;
+    typedText = true;
+    isHl = false;
+    displayRows();
+}
 
 void changeCursorColor()
 {
@@ -137,40 +167,40 @@ Point cursorPosition(Cursor cursor)
 void indexToCurs(int index, int &lin, int &col)
 {
     int i = index;
-    lin = 0,col=0;
-    if(!editor.isWordWrap)
+    lin = 0, col = 0;
+    if (!editor.isWordWrap)
     {
-        while(i>0)
+        while (i > 0)
         {
-            if(i-(int)strlen(editor.row[lin].text)>0)
+            if (i - (int)strlen(editor.row[lin].text) > 0)
             {
-                i-=strlen(editor.row[lin].text);
-                lin=lin+1;
+                i -= strlen(editor.row[lin].text);
+                lin = lin + 1;
             }
             else
             {
                 col = i;
-                i-=strlen(editor.row[lin].text);
+                i -= strlen(editor.row[lin].text);
             }
         }
     }
     else
     {
-        while(i>0)
+        while (i > 0)
         {
-            if(i-(int)strlen(editorWrap.row[lin].text) > 0)
+            if (i - (int)strlen(editorWrap.row[lin].text) > 0)
             {
-                i-=strlen(editorWrap.row[lin].text);
-                lin=lin+1;
+                i -= strlen(editorWrap.row[lin].text);
+                lin = lin + 1;
             }
             else
             {
                 col = i;
-                i-=strlen(editorWrap.row[lin].text);
+                i -= strlen(editorWrap.row[lin].text);
             }
         }
     }
-    printf("INDEX: %d => [%d %d]\n",index,lin,col);
+    //printf("INDEX: %d => [%d %d]\n", index, lin, col);
 }
 
 void drawCursor(Cursor cursor)
@@ -219,32 +249,40 @@ void drawIcons()
     copyButton.bkcolor = COLOR(177, 187, 188);
     pasteButton.bkcolor = COLOR(177, 187, 188);
     fontButton.bkcolor = COLOR(177, 187, 188);
+    openButton.bkcolor = COLOR(177,187,188);
+    cutButton.bkcolor = COLOR(177,187,188);
 
     saveButton.icon = "icons\\save_icon.gif";
     copyButton.icon = "icons\\copy_icon.gif";
     pasteButton.icon = "icons\\paste_icon.gif";
+    openButton.icon = "icons\\open_icon.gif";
+    cutButton.icon = "icons\\cut_icon.gif";
 
     saveButton.text = "Save";
     copyButton.text = "Copy";
     pasteButton.text = "Paste";
     fontButton.text = "Font";
+    cutButton.text = "Cut";
+    openButton.text = "Open";
 
     fontButton.font = font;
 
-    saveButton.iconWidth = pasteButton.iconWidth = copyButton.iconWidth = 32;
-    saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
+    cutButton.iconWidth = openButton.iconWidth = saveButton.iconWidth = pasteButton.iconWidth = copyButton.iconWidth = 32;
+    cutButton.iconHeight = openButton.iconHeight = saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
 
     int offset = 5;
-    saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 100;
-    saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
+    openButton.buttonWidth = cutButton.buttonWidth = saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 100;
+    openButton.buttonHeight = cutButton.buttonHeight =  saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
 
     saveButton.b.x = offset;
-    copyButton.b.x = saveButton.b.x + saveButton.buttonWidth + offset;
-    pasteButton.b.x = copyButton.b.x + copyButton.buttonWidth + offset;
+    openButton.b.x = saveButton.b.x + saveButton.buttonWidth + offset;
+    copyButton.b.x = openButton.b.x + openButton.buttonWidth + 2*offset;
+    cutButton.b.x = copyButton.b.x + copyButton.buttonWidth + offset;
+    pasteButton.b.x = cutButton.b.x + cutButton.buttonWidth + offset;
     fontButton.b.x = pasteButton.b.x + pasteButton.buttonWidth + offset;
     wordWrap.b.x = fontButton.b.x + fontButton.buttonWidth + offset * 3;
 
-    saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
+    openButton.b.y = cutButton.b.y = saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
 
     wordWrap.center.x = wordWrap.b.x + wordWrap.radius + 5;
     wordWrap.center.y = wordWrap.b.y + wordWrap.toggleHeight / 2;
@@ -255,6 +293,8 @@ void drawIcons()
     drawButton(copyButton);
     drawButton(pasteButton);
     drawButton(fontButton);
+    drawButton(openButton);
+    drawButton(cutButton);
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
@@ -723,28 +763,19 @@ void shiftDown()
 void getButtonClick(int x, int y)
 {
     setactivepage(getvisualpage());
-    Button b[] = {copyButton, saveButton, pasteButton, fontButton};
-    int buttCount = 4;
+    Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton};
+    int buttCount = 6;
     for (int i = 0; i < buttCount; i++)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
         {
             cout << b[i].text << " ";
-            if (strcmp(b[i].text, "Copy") == 0 && isHl)
-               {
-                clipboard=subStr(alltext, cursorToIndex(cursor.lin2,cursor.col2), cursorToIndex(cursor.lin,cursor.col)-1);
-                cout<<clipboard<<'\n';
-               }
-            if (strcmp(b[i].text, "Paste") == 0 && clipboard)
-               {
-                cout<<clipboard<<'\n';
-                inserare(alltext, clipboard, cursorToIndex(cursor.lin2,cursor.col2), cursorToIndex(cursor.lin,cursor.col));
-                isHl=false;
-
-                cursor.lin=cursor.lin2;
-                cursor.col=cursor.col2;
-                displayRows();
-               }
+            if (strcmp(b[i].text, "Copy") == 0)
+                copy();
+            if (strcmp(b[i].text, "Paste") == 0)
+                paste();
+            if (strcmp(b[i].text, "Cut") == 0)
+                cut();
             if (strcmp(b[i].text, "Font") == 0)
             {
                 font = (font + 1) % 11;
@@ -785,8 +816,8 @@ void getButtonClick(int x, int y)
 void getMouseHover(int x, int y)
 {
     setactivepage(getvisualpage());
-    Button b[] = {copyButton, saveButton, pasteButton, fontButton};
-    int buttCount = 4;
+    Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton};
+    int buttCount = 6;
     for (int i = 0; i < buttCount; i++)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
@@ -939,19 +970,19 @@ void getRClickUp(int x, int y)
     }
     if (editor.isWordWrap)
     {
-        printf("START(%i %i) FINISH(%i %i)\n", cursorWrap.lin2, cursorWrap.col2, cursorWrap.lin, cursorWrap.col);
+        //printf("START(%i %i) FINISH(%i %i)\n", cursorWrap.lin2, cursorWrap.col2, cursorWrap.lin, cursorWrap.col);
         if (!(cursorWrap.lin == cursorWrap.lin2 && cursorWrap.col == cursorWrap.col2))
             isHl = true;
-        indexToCurs(cursorToIndex(cursorWrap.lin,cursorWrap.col),cursor.lin,cursor.col);
-        indexToCurs(cursorToIndex(cursorWrap.lin2,cursorWrap.col2),cursor.lin2,cursor.col2);
+        indexStart = cursorToIndex(cursorWrap.lin2, cursorWrap.col2);
+        indexFinish = cursorToIndex(cursorWrap.lin, cursorWrap.col);
     }
     else
     {
-        printf("START(%i %i) FINISH(%i %i)\n", cursor.lin2, cursor.col2, cursor.lin, cursor.col);
+        //printf("START(%i %i) FINISH(%i %i)\n", cursor.lin2, cursor.col2, cursor.lin, cursor.col);
         if (!(cursor.lin == cursor.lin2 && cursor.col == cursor.col2))
             isHl = true;
-        indexToCurs(cursorToIndex(cursor.lin,cursor.col),cursorWrap.lin,cursorWrap.col);
-        indexToCurs(cursorToIndex(cursor.lin2,cursor.col2),cursorWrap.lin2,cursorWrap.col2);
+        indexStart = cursorToIndex(cursor.lin2, cursor.col2);
+        indexFinish = cursorToIndex(cursor.lin, cursor.col);
     }
     displayRows();
 }
@@ -1081,6 +1112,8 @@ void alltextToNonWrap()
            strcpy(editor.row[editor.rowCount++].text,p);
            p = strtok (NULL, "\n");
           }*/
+    indexToCurs(indexStart, cursor.lin2, cursor.col2);
+    indexToCurs(indexFinish, cursor.lin, cursor.col);
 }
 
 void wordWrapAll()
@@ -1091,7 +1124,10 @@ void wordWrapAll()
         editorWrap.row[i].text[0] = '\0';
     if (editor.row[0].text[0] == NULL)
     {
-        cout << "CANT WORDWRAP";
+        cout << "Cannot wordwrap.\n";
+        editor.isWordWrap = 1-wordWrap.isSet;
+        wordWrap.isSet = 1- wordWrap.isSet;
+        drawToggle(wordWrap);
         return;
     }
     /**
@@ -1110,15 +1146,15 @@ void wordWrapAll()
         for (right = left; right < lg; right++)
         {
             p = subStr(alltext, left, right);
-            ///cout<<textwidth(p)<< '\n';
+            /// cout<<textwidth(p)<< '\n';
             if (textwidth(p) + 29 > winLength)
             {
-                q = subStr(alltext, left, right-1);
+                q = subStr(alltext, left, right - 1);
                 /// cuv mai mare decat tot randul
                 if (editorWrap.row[cursorWrap.lin].text[0])
                     cursorWrap.lin++;
                 strcpy(editorWrap.row[cursorWrap.lin].text, q);
-                editorWrap.row[cursorWrap.lin].text[strlen(editorWrap.row[cursorWrap.lin].text) ] = 0;
+                editorWrap.row[cursorWrap.lin].text[strlen(editorWrap.row[cursorWrap.lin].text)] = 0;
                 cursorWrap.lin++;
                 right--;
                 break;
@@ -1147,8 +1183,8 @@ void wordWrapAll()
     editorWrap.rowCount = cursorWrap.lin + 1;
     cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
 
-    indexToCurs(cursorToIndex(cursor.lin,cursor.col),cursorWrap.lin,cursorWrap.col);
-    indexToCurs(cursorToIndex(cursor.lin2,cursor.col2),cursorWrap.lin2,cursorWrap.col2);
+    indexToCurs(indexStart, cursorWrap.lin2, cursorWrap.col2);
+    indexToCurs(indexFinish, cursorWrap.lin, cursorWrap.col);
 
     /// cout<< cursor.lin << ' ' << cursor.col << '\n';
     /// de implementat cursorul pentru Wrap... cand citim textul
@@ -1166,7 +1202,6 @@ int cursorToIndex(int lin, int col)
     return nr;
 }
 
-
 void readText(char *location)
 {
     int c1, c2;
@@ -1183,51 +1218,56 @@ void readText(char *location)
     curr = getch();
     while (curr != 27) /// escape
     {
+        printf("Caracterul scris: %d\n",curr);
         fflush(stdin);
-        if (GetAsyncKeyState(VK_UP))
-            {shiftUp();
-            curr = 0;}
-        else if (GetAsyncKeyState(VK_DOWN))
-           { shiftDown();
-            curr = 0;}
-        else if (GetAsyncKeyState(VK_LEFT))
-            {shiftLeft();
-            curr = 0;}
-        else if (GetAsyncKeyState(VK_RIGHT))
-            {shiftRight();
-            curr = 0;}
+        if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('A') >> 7)
+        {
+            indexStart = 0;
+            indexFinish = strlen(alltext);
+            isHl = true;
+            displayRows();
+        }
+        else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('C') >> 7)
+            copy();
+        else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('V') >> 7)
+            paste();
+        else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('X') >> 7)
+            cut();
+        else if (GetKeyState(VK_UP))
+        {
+            shiftUp();
+            curr = 0;
+        }
+        else if (GetKeyState(VK_DOWN))
+        {
+            shiftDown();
+            curr = 0;
+        }
+        else if (GetKeyState(VK_LEFT))
+        {
+            shiftLeft();
+            curr = 0;
+        }
+        else if (GetKeyState(VK_RIGHT))
+        {
+            shiftRight();
+            curr = 0;
+        }
         else if (curr == 8) /// BACKSPACE
         {
             typedText = true;
             if (isHl)
             {
-                c1 = cursorToIndex(cursor.lin2, cursor.col2);
-                c2 = cursorToIndex(cursor.lin, cursor.col);
-                stergere(alltext, c1, c2);
-                cursor.lin = cursor.lin2;
-                cursor.col = cursor.col2;
+                stergere(alltext, indexStart, indexFinish);
                 isHl = false;
+                indexFinish = indexStart;
                 displayRows();
             }
-            else if (cursor.lin != 0 || cursor.col != 0)
+            else if (indexStart > 0)
             {
-                c1 = cursorToIndex(cursor.lin2, cursor.col2);
-                stergere(alltext, c1 - 1, c1);
-                if (cursor.col > 0)
-                {
-                    cursor.col--;
-                    cursor.col2 = cursor.col;
-                }
-                else
-                {
-                    if (cursor.lin > 0)
-                    {
-                        cursor.lin--;
-                        cursor.lin2 = cursor.lin;
-                        cursor.col = strlen(editor.row[cursor.lin].text)-1;
-                        cursor.col2 = cursor.col;
-                    }
-                }
+                stergere(alltext, indexStart - 1, indexStart);
+                indexStart--;
+                indexFinish = indexStart;
                 displayRows();
             }
         }
@@ -1241,47 +1281,35 @@ void readText(char *location)
                 /**editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' ';
                 editor.row[cursor.lin].text[cursor.col++] = ' '; */
-                c2 = cursorToIndex(cursor.lin, cursor.col);
-                c1 = cursorToIndex(cursor.lin2, cursor.col2);
-                inserare(alltext, "    ", c1, c2);
-                cursor.col2+=3;
-                cursor.col = cursor.col2;
-                cursor.lin = cursor.lin2;
+                inserare(alltext, "    ", indexStart, indexFinish);
+                indexStart += 3;
+                indexFinish = indexStart;
                 /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
             }
             else
             {
                 temp[0] = curr;
                 temp[1] = 0;
-                c2 = cursorToIndex(cursor.lin, cursor.col);
-                c1 = cursorToIndex(cursor.lin2, cursor.col2);
-                cursor.col = cursor.col2;
-                cursor.lin = cursor.lin2;
-                inserare(alltext, temp, c1, c2);
+                inserare(alltext, temp, indexStart, indexFinish);
             }
             /// setPosChar(&curr);
             if (curr == 13)
             {
                 /**editor.row[cursor.lin].text[cursor.col] = '\n';
                 editor.rowCount++;*/
-                alltext[c1] = '\n';
+                alltext[indexStart] = '\n';
 
-                cursor.lin++;
-                cursor.col = 0;
-                cursor.lin2++;
-                cursor.col2 = 0;
+                indexStart++;
+                indexFinish = indexStart;
             }
             else
             {
-                cursor.col++;
-                cursor.col2++;
+                indexStart++;
+                indexFinish = indexStart;
             }
             isHl = false;
             displayRows();
         }
-
-        /// lgtext++;
-        // cout<<cursor.col<<'\n';
         curr = getch();
     }
 }
