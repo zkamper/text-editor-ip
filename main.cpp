@@ -7,7 +7,7 @@
 #define NMAX 10000
 #include <fstream>
 #include <stdio.h>
-#include <thread>
+//#include <thread>
 #include <windows.h>
 
 using namespace std;
@@ -1077,7 +1077,7 @@ void wordWrapAll()
         strcat(alltext, editor.row[i].text);
     */
     int left = 0, right, lg;
-    char *p;
+    char *p, *q;
     editorWrap.rowCount = 0;
     /// de editat
     cursorWrap.lin = cursorWrap.col = 0;
@@ -1087,6 +1087,19 @@ void wordWrapAll()
         for (right = left; right < lg; right++)
         {
             p = subStr(alltext, left, right);
+            ///cout<<textwidth(p)<< '\n';
+            if (textwidth(p) + 29 > winLength)
+            {
+                q = subStr(alltext, left, right-1);
+                /// cuv mai mare decat tot randul
+                if (editorWrap.row[cursorWrap.lin].text[0])
+                    cursorWrap.lin++;
+                strcpy(editorWrap.row[cursorWrap.lin].text, q);
+                editorWrap.row[cursorWrap.lin].text[strlen(editorWrap.row[cursorWrap.lin].text) ] = 0;
+                cursorWrap.lin++;
+                right--;
+                break;
+            }
             if (alltext[right] == '\n' || alltext[right] == ' ' || right == lg - 1)
             {
                 /// enter, spatiu sau finalul stringului mare
@@ -1101,18 +1114,6 @@ void wordWrapAll()
                 }
                 if (alltext[right] == '\n')
                     cursorWrap.lin++;
-                break;
-            }
-            if (textwidth(p) + 29 > winLength)
-            {
-                /// cuv mai mare decat tot randul
-                if (editorWrap.row[cursorWrap.lin].text[0])
-                    cursorWrap.lin++;
-                strcpy(editorWrap.row[cursorWrap.lin].text, p);
-                editorWrap.row[cursorWrap.lin].text[strlen(editorWrap.row[cursorWrap.lin].text) - 1] = 0;
-                cursorWrap.lin++;
-                editorWrap.row[cursorWrap.lin].text[0] = alltext[right];
-                editorWrap.row[cursorWrap.lin].text[1] = 0;
                 break;
             }
         }
