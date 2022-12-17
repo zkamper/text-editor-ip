@@ -71,6 +71,7 @@ struct editorConfig
     int rowCount = 1;
 } editor, editorWrap;
 
+char *clipboard;
 char alltext[1000000];
 int indexStart = 0, intdexFinish = 0;
 
@@ -729,6 +730,21 @@ void getButtonClick(int x, int y)
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
         {
             cout << b[i].text << " ";
+            if (strcmp(b[i].text, "Copy") == 0 && isHl)
+               {
+                clipboard=subStr(alltext, cursorToIndex(cursor.lin2,cursor.col2), cursorToIndex(cursor.lin,cursor.col)-1);
+                cout<<clipboard<<'\n';
+               }
+            if (strcmp(b[i].text, "Paste") == 0 && clipboard)
+               {
+                cout<<clipboard<<'\n';
+                inserare(alltext, clipboard, cursorToIndex(cursor.lin2,cursor.col2), cursorToIndex(cursor.lin,cursor.col));
+                isHl=false;
+
+                cursor.lin=cursor.lin2;
+                cursor.col=cursor.col2;
+                displayRows();
+               }
             if (strcmp(b[i].text, "Font") == 0)
             {
                 font = (font + 1) % 11;
@@ -1130,7 +1146,7 @@ void wordWrapAll()
     }
     editorWrap.rowCount = cursorWrap.lin + 1;
     cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
-    
+
     indexToCurs(cursorToIndex(cursor.lin,cursor.col),cursorWrap.lin,cursorWrap.col);
     indexToCurs(cursorToIndex(cursor.lin2,cursor.col2),cursorWrap.lin2,cursorWrap.col2);
 
