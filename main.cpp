@@ -35,6 +35,7 @@ double currBarOffset = 0;
 int page = 0;
 bool typedText = false;
 bool isHl = false;
+bool changedText;
 
 double offsetHeight, offsetLength;
 double currWordLength = 0;
@@ -486,7 +487,7 @@ void displayRows()
                 setbkcolor(hlTextBk);
                 char *p2 = "";
                 if (cursorWrap.col > 0)
-                    subStr(editorWrap.row[i].text, cursorWrap.col2 - 0, cursorWrap.col - 1);
+                    p2 = subStr(editorWrap.row[i].text, cursorWrap.col2 - 0, cursorWrap.col - 1);
                 outtextxy(x - currDisplayOffset + textwidth(p), y - currDisplayOffset2, p2);
                 char *p3 = subStr(editorWrap.row[i].text, cursorWrap.col, strlen(editorWrap.row[i].text));
                 setbkcolor(bkPrev);
@@ -755,6 +756,7 @@ void getButtonClick(int x, int y)
         drawToggle(wordWrap);
         swapbuffers();
         isHl = false;
+        changedText = true;
         cursor.lin2 = cursor.lin;
         cursor.col2 = cursor.col;
         cursorWrap.lin2 = cursorWrap.lin;
@@ -924,12 +926,16 @@ void getRClickUp(int x, int y)
         printf("START(%i %i) FINISH(%i %i)\n", cursorWrap.lin2, cursorWrap.col2, cursorWrap.lin, cursorWrap.col);
         if (!(cursorWrap.lin == cursorWrap.lin2 && cursorWrap.col == cursorWrap.col2))
             isHl = true;
+        indexToCurs(cursorToIndex(cursorWrap.lin,cursorWrap.col),cursor.lin,cursor.col);
+        indexToCurs(cursorToIndex(cursorWrap.lin2,cursorWrap.col2),cursor.lin2,cursor.col2);
     }
     else
     {
+        printf("START(%i %i) FINISH(%i %i)\n", cursor.lin2, cursor.col2, cursor.lin, cursor.col);
         if (!(cursor.lin == cursor.lin2 && cursor.col == cursor.col2))
             isHl = true;
-        printf("START(%i %i) FINISH(%i %i)\n", cursor.lin2, cursor.col2, cursor.lin, cursor.col);
+        indexToCurs(cursorToIndex(cursor.lin,cursor.col),cursorWrap.lin,cursorWrap.col);
+        indexToCurs(cursorToIndex(cursor.lin2,cursor.col2),cursorWrap.lin2,cursorWrap.col2);
     }
     displayRows();
 }
@@ -1063,6 +1069,7 @@ void alltextToNonWrap()
 
 void wordWrapAll()
 {
+    Cursor cursAux = cursorWrap;
     setTextFont();
     for (int i = 0; i < 10000; i++)
         editorWrap.row[i].text[0] = '\0';
@@ -1123,8 +1130,10 @@ void wordWrapAll()
     }
     editorWrap.rowCount = cursorWrap.lin + 1;
     cursorWrap.col = strlen(editorWrap.row[cursorWrap.lin].text);
+    
     indexToCurs(cursorToIndex(cursor.lin,cursor.col),cursorWrap.lin,cursorWrap.col);
-    indexToCurs(cursorToIndex(cursor.lin,cursor.col),cursorWrap.lin2,cursorWrap.col2);
+    indexToCurs(cursorToIndex(cursor.lin2,cursor.col2),cursorWrap.lin2,cursorWrap.col2);
+
     /// cout<< cursor.lin << ' ' << cursor.col << '\n';
     /// de implementat cursorul pentru Wrap... cand citim textul
 }
@@ -1140,6 +1149,7 @@ int cursorToIndex(int lin, int col)
     nr += col;
     return nr;
 }
+
 
 void readText(char *location)
 {
@@ -1157,14 +1167,19 @@ void readText(char *location)
     curr = getch();
     while (curr != 27) /// escape
     {
+        fflush(stdin);
         if (GetAsyncKeyState(VK_UP))
-            shiftUp();
+            {shiftUp();
+            curr = 0;}
         else if (GetAsyncKeyState(VK_DOWN))
-            shiftDown();
+           { shiftDown();
+            curr = 0;}
         else if (GetAsyncKeyState(VK_LEFT))
-            shiftLeft();
+            {shiftLeft();
+            curr = 0;}
         else if (GetAsyncKeyState(VK_RIGHT))
-            shiftRight();
+            {shiftRight();
+            curr = 0;}
         else if (curr == 8) /// BACKSPACE
         {
             typedText = true;

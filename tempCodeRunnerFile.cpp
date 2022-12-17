@@ -1,1 +1,2 @@
-cout<<cursor.col<<" "<<cursor.col2;
+shiftRight();
+            curr = 0;
