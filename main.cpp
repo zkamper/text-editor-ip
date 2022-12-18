@@ -181,6 +181,8 @@ void indexToCurs(int index, int &lin, int &col)
             {
                 col = i;
                 i -= strlen(editor.row[lin].text);
+                if(editor.row[lin].text[col-1] == '\n')
+                    {lin++,col=0;}
             }
         }
     }
@@ -197,6 +199,8 @@ void indexToCurs(int index, int &lin, int &col)
             {
                 col = i;
                 i -= strlen(editorWrap.row[lin].text);
+                if(editorWrap.row[lin].text[col-1] == '\n')
+                    {lin++,col=0;}
             }
         }
     }
@@ -816,7 +820,7 @@ void getButtonClick(int x, int y)
 void getMouseHover(int x, int y)
 {
     setactivepage(getvisualpage());
-    Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton};
+    Button b[] = {copyButton, saveButton, pasteButton, openButton, cutButton, fontButton};
     int buttCount = 6;
     for (int i = 0; i < buttCount; i++)
     {
@@ -1311,6 +1315,7 @@ void readText(char *location)
             displayRows();
         }
         curr = getch();
+        fflush(stdin);
     }
 }
 
