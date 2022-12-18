@@ -95,6 +95,47 @@ void wordWrapAll();
 void alltextToNonWrap();
 void setTextFont();
 
+void insertTime()
+{
+    char timeTemp[100];
+    strcpy(timeTemp,getCurrentDate());
+    inserare(alltext,timeTemp,indexStart,indexFinish);
+    indexStart=indexFinish=indexStart+strlen(timeTemp);
+    typedText = true;
+    displayRows();
+}
+
+int howManyFound(char* alltext, char* toBeFound)
+{
+ int ans=-1;
+ char *p=alltext;
+ while (p)
+       {
+        p=strstr(alltext,toBeFound);
+        p++;
+        ans++;
+       }
+ return ans;
+}
+
+void findFirst(char* alltext, char* toBeFound)
+{
+ char *p=strstr(alltext, toBeFound);
+ if (!p) return;
+ indexStart = (p - alltext);
+ indexFinish = indexStart + strlen(toBeFound);
+ isHl = typedText = true;
+ displayRows();
+}
+
+void replaceFirst(char* alltext, char* toReplace)
+{
+ inserare(allltext,toReplace,indexStart,indexFinish);
+ indexFinish = indexStart = indexStart + strlen(toReplace);
+ isHl = false;
+ typedText = true;
+ displayRows();
+}
 
 void copy()
 {

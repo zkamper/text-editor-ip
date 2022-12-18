@@ -1,12 +1,11 @@
 #include <iostream>
-#include <graphics.h>
-#include <iostream>
-#include "siruri.h"
-#include <windows.h>
-
+#include <time.h>
 using namespace std;
 
-int main()
-{
-    cout<<"Hello world";
+int a[]="0123456789";
+int *p=a+3;
+
+int main() {
+ cout << p-a;
+ return 0;
 }

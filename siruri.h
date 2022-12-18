@@ -1,7 +1,8 @@
 #include <cstring>
+#include <time.h>
 
 char* subStr(char* str, int left, int right)
-{///de la left, pana la right inlucsiv
+{///de la left, pana la right inlcusiv
  ///se foloseste diferit fata de mai jos
     if(left<0)
         left = 0;
@@ -29,4 +30,11 @@ void inserare (char *str, char *strIns, int left, int right)
 void stergere (char *str, int left, int right)
 {
  strcpy(str+left,str+right);
+}
+
+char* getCurrentDate()
+{
+    time_t currDate = time(0);
+    tm tstruct = *localtime(&currDate);
+    return asctime(&tstruct);
 }
