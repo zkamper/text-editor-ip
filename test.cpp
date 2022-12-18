@@ -1,11 +1,17 @@
 #include <iostream>
 #include <time.h>
+#include <windows.h>
+#include <graphics.h>
+#include <bitset>
 using namespace std;
 
-int a[]="0123456789";
-int *p=a+3;
-
-int main() {
- cout << p-a;
- return 0;
+int main()
+{
+    initwindow(100,100);
+    for(int i = 0; i < 1000; i++)
+    {
+        cout<<kbhit();
+        getch();
+        delay(100);
+    }
 }

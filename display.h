@@ -1,5 +1,6 @@
 #include <graphics.h>
 #include <cmath>
+#include <iostream>
 
 struct Point{
     int x;
@@ -58,6 +59,7 @@ void drawButton(Button button){
 void drawToggle(Toggle toggle){
     int bkColor = getbkcolor();
     int color = getcolor();
+    std::cout<<toggle.text<<": "<<toggle.bkcolor<<"\n";
     setcolor(toggle.bkcolor);
     setfillstyle(1,toggle.bkcolor);
     fillellipse(toggle.b.x+toggle.radius+5,toggle.b.y+toggle.toggleHeight/2,toggle.radius,toggle.radius);

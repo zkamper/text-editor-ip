@@ -13,8 +13,8 @@
 using namespace std;
 
 double lengthError;
-Button saveButton, copyButton, pasteButton, fontButton, openButton, cutButton;
-Toggle wordWrap;
+Button saveButton, copyButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton;
+Toggle wordWrap, numLock, capsLock;
 int font = 8; /// 8 - font recomandat, fara niciun offset
 double winLength, winHeight;
 int bkColor = COLOR(221, 234, 235);      // Culoarea de fundal;
@@ -24,6 +24,8 @@ int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
 int hlTextBk = COLOR(37, 150, 190);      // Culoarea de Highlight
 int hlText = WHITE;                      // COLOR(opus la tema normala)
 int cursColor = accentColor3;
+int toggleOnColor = COLOR(22, 242, 95);  // Indicator ON
+int toggleOffColor = COLOR(130, 10, 10); // Indicator OFF
 
 double displayOffset = 0;
 double displayOffset2 = 0;
@@ -98,57 +100,59 @@ void setTextFont();
 void insertTime()
 {
     char timeTemp[100];
-    strcpy(timeTemp,getCurrentDate());
-    inserare(alltext,timeTemp,indexStart,indexFinish);
-    indexStart=indexFinish=indexStart+strlen(timeTemp);
+    strcpy(timeTemp, getCurrentDate());
+    timeTemp[strlen(timeTemp) - 1] = '\0';
+    inserare(alltext, timeTemp, indexStart, indexFinish);
+    indexStart = indexFinish = indexStart + strlen(timeTemp);
     typedText = true;
     displayRows();
 }
 
-int howManyFound(char* alltext, char* toBeFound)
+int howManyFound(char *alltext, char *toBeFound)
 {
- int ans=-1;
- char *p=alltext;
- while (p)
-       {
-        p=strstr(alltext,toBeFound);
+    int ans = -1;
+    char *p = alltext;
+    while (p)
+    {
+        p = strstr(alltext, toBeFound);
         p++;
         ans++;
-       }
- return ans;
+    }
+    return ans;
 }
 
-void findFirst(char* alltext, char* toBeFound)
+void findFirst(char *alltext, char *toBeFound)
 {
- char *p=strstr(alltext, toBeFound);
- if (!p) return;
- indexStart = (p - alltext);
- indexFinish = indexStart + strlen(toBeFound);
- isHl = typedText = true;
- displayRows();
+    char *p = strstr(alltext, toBeFound);
+    if (!p)
+        return;
+    indexStart = (p - alltext);
+    indexFinish = indexStart + strlen(toBeFound);
+    isHl = typedText = true;
+    displayRows();
 }
 
-void replaceFirst(char* alltext, char* toReplace)
+void replaceFirst(char *alltext, char *toReplace)
 {
- inserare(allltext,toReplace,indexStart,indexFinish);
- indexFinish = indexStart = indexStart + strlen(toReplace);
- isHl = false;
- typedText = true;
- displayRows();
+    inserare(alltext, toReplace, indexStart, indexFinish);
+    indexFinish = indexStart = indexStart + strlen(toReplace);
+    isHl = false;
+    typedText = true;
+    displayRows();
 }
 
 void copy()
 {
-    if(!isHl)
+    if (!isHl)
         return;
-    clipboard = subStr(alltext,indexStart,indexFinish-1);
-    cout<<clipboard<<endl;
+    clipboard = subStr(alltext, indexStart, indexFinish - 1);
+    cout << clipboard << endl;
 }
 
 void cut()
 {
     copy();
-    stergere(alltext,indexStart,indexFinish);
+    stergere(alltext, indexStart, indexFinish);
     indexFinish = indexStart;
     typedText = true;
     isHl = false;
@@ -157,10 +161,10 @@ void cut()
 
 void paste()
 {
-    if(!clipboard)
+    if (!clipboard)
         return;
-    inserare(alltext,clipboard,indexStart,indexFinish);
-    indexStart+=strlen(clipboard);
+    inserare(alltext, clipboard, indexStart, indexFinish);
+    indexStart += strlen(clipboard);
     indexFinish = indexStart;
     typedText = true;
     isHl = false;
@@ -222,8 +226,10 @@ void indexToCurs(int index, int &lin, int &col)
             {
                 col = i;
                 i -= strlen(editor.row[lin].text);
-                if(editor.row[lin].text[col-1] == '\n')
-                    {lin++,col=0;}
+                if (editor.row[lin].text[col - 1] == '\n')
+                {
+                    lin++, col = 0;
+                }
             }
         }
     }
@@ -240,12 +246,14 @@ void indexToCurs(int index, int &lin, int &col)
             {
                 col = i;
                 i -= strlen(editorWrap.row[lin].text);
-                if(editorWrap.row[lin].text[col-1] == '\n')
-                    {lin++,col=0;}
+                if (editorWrap.row[lin].text[col - 1] == '\n')
+                {
+                    lin++, col = 0;
+                }
             }
         }
     }
-    //printf("INDEX: %d => [%d %d]\n", index, lin, col);
+    // printf("INDEX: %d => [%d %d]\n", index, lin, col);
 }
 
 void drawCursor(Cursor cursor)
@@ -290,12 +298,38 @@ void drawIcons()
     wordWrap.isSet;
     wordWrap.toggleWidth = wordWrap.radius * 2 + textwidth(wordWrap.text) + 15;
 
+    numLock.toggleHeight = 40;
+    numLock.radius = 8;
+    numLock.text = "Num";
+    numLock.oncolor = accentColor2;
+    numLock.isSet = false;
+    numLock.toggleWidth = numLock.radius * 2 + textwidth(numLock.text) + 15;
+
+    capsLock.toggleHeight = 40;
+    capsLock.radius = 8;
+    capsLock.text = "Caps";
+    capsLock.oncolor = accentColor2;
+    capsLock.isSet = false;
+    capsLock.toggleWidth = capsLock.radius * 2 + textwidth(capsLock.text) + 15;
+
     saveButton.bkcolor = COLOR(177, 187, 188);
     copyButton.bkcolor = COLOR(177, 187, 188);
     pasteButton.bkcolor = COLOR(177, 187, 188);
     fontButton.bkcolor = COLOR(177, 187, 188);
-    openButton.bkcolor = COLOR(177,187,188);
-    cutButton.bkcolor = COLOR(177,187,188);
+    openButton.bkcolor = COLOR(177, 187, 188);
+    cutButton.bkcolor = COLOR(177, 187, 188);
+    findButton.bkcolor = COLOR(177, 187, 188);
+    timeButton.bkcolor = COLOR(177, 187, 188);
+
+    if (GetKeyState(VK_CAPITAL) & 1)
+        {capsLock.bkcolor = GREEN;}
+    else
+        {capsLock.bkcolor = RED;
+}
+    if (GetKeyState(VK_NUMLOCK) & 1)
+        {numLock.bkcolor = GREEN;}
+    else
+        {numLock.bkcolor = RED;}
 
     saveButton.icon = "icons\\save_icon.gif";
     copyButton.icon = "icons\\copy_icon.gif";
@@ -309,29 +343,46 @@ void drawIcons()
     fontButton.text = "Font";
     cutButton.text = "Cut";
     openButton.text = "Open";
+    findButton.text = "Find & Replace";
+    timeButton.text = "Time/Date";
 
     fontButton.font = font;
 
-    cutButton.iconWidth = openButton.iconWidth = saveButton.iconWidth = pasteButton.iconWidth = copyButton.iconWidth = 32;
-    cutButton.iconHeight = openButton.iconHeight = saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
+    findButton.iconWidth = cutButton.iconWidth = openButton.iconWidth = saveButton.iconWidth = pasteButton.iconWidth = copyButton.iconWidth = 32;
+    findButton.iconHeight = cutButton.iconHeight = openButton.iconHeight = saveButton.iconHeight = pasteButton.iconHeight = copyButton.iconHeight = 32;
 
     int offset = 5;
-    openButton.buttonWidth = cutButton.buttonWidth = saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 100;
-    openButton.buttonHeight = cutButton.buttonHeight =  saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
+    timeButton.buttonWidth = findButton.buttonWidth = openButton.buttonWidth = cutButton.buttonWidth = saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 100;
+    timeButton.buttonHeight = findButton.buttonHeight = openButton.buttonHeight = cutButton.buttonHeight = saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
 
+    findButton.buttonWidth = 140;
     saveButton.b.x = offset;
     openButton.b.x = saveButton.b.x + saveButton.buttonWidth + offset;
-    copyButton.b.x = openButton.b.x + openButton.buttonWidth + 2*offset;
+    findButton.b.x = openButton.b.x + openButton.buttonWidth + offset;
+    copyButton.b.x = findButton.b.x + findButton.buttonWidth + 2 * offset;
     cutButton.b.x = copyButton.b.x + copyButton.buttonWidth + offset;
     pasteButton.b.x = cutButton.b.x + cutButton.buttonWidth + offset;
     fontButton.b.x = pasteButton.b.x + pasteButton.buttonWidth + offset;
-    wordWrap.b.x = fontButton.b.x + fontButton.buttonWidth + offset * 3;
+    timeButton.b.x = fontButton.b.x + fontButton.buttonWidth + offset;
+    wordWrap.b.x = timeButton.b.x + timeButton.buttonWidth + offset * 3;
+    numLock.b.x = wordWrap.b.x + wordWrap.toggleWidth + offset;
+    capsLock.b.x = numLock.b.x + numLock.toggleWidth + offset;
 
-    openButton.b.y = cutButton.b.y = saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
+    numLock.b.y = capsLock.b.y = timeButton.b.y = findButton.b.y = openButton.b.y = cutButton.b.y = saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
 
     wordWrap.center.x = wordWrap.b.x + wordWrap.radius + 5;
     wordWrap.center.y = wordWrap.b.y + wordWrap.toggleHeight / 2;
 
+    numLock.center.x = numLock.b.x + numLock.radius + 5;
+    numLock.center.y = numLock.b.y + numLock.toggleHeight / 2;
+
+    capsLock.center.x = capsLock.b.x + capsLock.radius + 5;
+    capsLock.center.y = capsLock.b.y + capsLock.toggleHeight / 2;
+
+    
+    
+    drawToggle(capsLock);
+    drawToggle(numLock);
     drawToggle(wordWrap);
 
     drawButton(saveButton);
@@ -340,6 +391,8 @@ void drawIcons()
     drawButton(fontButton);
     drawButton(openButton);
     drawButton(cutButton);
+    drawButton(findButton);
+    drawButton(timeButton);
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
@@ -423,9 +476,10 @@ void initBuffer()
     setactivepage(1);
     setbkcolor(bkColor);
     cleardevice();
-    drawIcons();
     setcolor(accentColor2);
     setlinestyle(0, 0, 2);
+    drawToggle(numLock);
+    drawToggle(capsLock);
     line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
     setactivepage(formerPage);
 }
@@ -438,15 +492,16 @@ void displayRows()
         alltextToNonWrap();
     setactivepage(!page);
     page = !page;
-    drawIcons();
     int x = 8, y = 0;
-    setTextFont();
-    setfillstyle(1, bkColor);
     if (editor.isWordWrap)
         calculateBar(editorWrap);
     else
         calculateBar(editor);
+    setfillstyle(1, bkColor);
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
+
+    drawIcons();
+    setTextFont();
     setviewport(0, saveButton.buttonHeight + 10, winLength, winHeight, 1);
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
     currDisplayOffset2 = (currDisplayOffset2 > displayOffset2) ? displayOffset2 : currDisplayOffset2;
@@ -808,8 +863,8 @@ void shiftDown()
 void getButtonClick(int x, int y)
 {
     setactivepage(getvisualpage());
-    Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton};
-    int buttCount = 6;
+    Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton};
+    int buttCount = 8;
     for (int i = 0; i < buttCount; i++)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
@@ -830,6 +885,8 @@ void getButtonClick(int x, int y)
                 fontButton.font = font;
                 drawButton(fontButton);
             }
+            if (strcmp(b[i].text, "Time/Date") == 0)
+                insertTime();
         }
     }
     if (displayOffset > 0 && 0 <= x && x <= 20 && winHeight - 20 <= y && y <= winHeight)
@@ -861,8 +918,8 @@ void getButtonClick(int x, int y)
 void getMouseHover(int x, int y)
 {
     setactivepage(getvisualpage());
-    Button b[] = {copyButton, saveButton, pasteButton, openButton, cutButton, fontButton};
-    int buttCount = 6;
+    Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton};
+    int buttCount = 8;
     for (int i = 0; i < buttCount; i++)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
@@ -1015,7 +1072,7 @@ void getRClickUp(int x, int y)
     }
     if (editor.isWordWrap)
     {
-        //printf("START(%i %i) FINISH(%i %i)\n", cursorWrap.lin2, cursorWrap.col2, cursorWrap.lin, cursorWrap.col);
+        // printf("START(%i %i) FINISH(%i %i)\n", cursorWrap.lin2, cursorWrap.col2, cursorWrap.lin, cursorWrap.col);
         if (!(cursorWrap.lin == cursorWrap.lin2 && cursorWrap.col == cursorWrap.col2))
             isHl = true;
         indexStart = cursorToIndex(cursorWrap.lin2, cursorWrap.col2);
@@ -1023,7 +1080,7 @@ void getRClickUp(int x, int y)
     }
     else
     {
-        //printf("START(%i %i) FINISH(%i %i)\n", cursor.lin2, cursor.col2, cursor.lin, cursor.col);
+        // printf("START(%i %i) FINISH(%i %i)\n", cursor.lin2, cursor.col2, cursor.lin, cursor.col);
         if (!(cursor.lin == cursor.lin2 && cursor.col == cursor.col2))
             isHl = true;
         indexStart = cursorToIndex(cursor.lin2, cursor.col2);
@@ -1170,8 +1227,8 @@ void wordWrapAll()
     if (editor.row[0].text[0] == NULL)
     {
         cout << "Cannot wordwrap.\n";
-        editor.isWordWrap = 1-wordWrap.isSet;
-        wordWrap.isSet = 1- wordWrap.isSet;
+        editor.isWordWrap = 1 - wordWrap.isSet;
+        wordWrap.isSet = 1 - wordWrap.isSet;
         drawToggle(wordWrap);
         return;
     }
@@ -1261,9 +1318,9 @@ void readText(char *location)
     openTxt(location);
     char curr;
     curr = getch();
-    while (curr != 27) /// escape
+    while (curr != 27 || GetKeyState(VK_CAPITAL) >> 7 || GetKeyState(VK_NUMLOCK) >> 7) /// escape
     {
-        printf("Caracterul scris: %d\n",curr);
+        printf("Caracterul scris: %d\n", curr);
         fflush(stdin);
         if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('A') >> 7)
         {
@@ -1298,6 +1355,24 @@ void readText(char *location)
             shiftRight();
             curr = 0;
         }
+        // else if (GetKeyState(VK_CAPITAL)>>7)
+        // {
+        //     cout<<"CAPS";
+        //     if (GetKeyState(VK_CAPITAL) & 1)
+        //         capsLock.bkcolor = GREEN;
+        //     else
+        //         capsLock.bkcolor = RED;
+        //     displayRows();
+        // }
+        // else if (GetKeyState(VK_NUMLOCK)>>7)
+        // {
+        //     cout<<"NUM";
+        //     if (GetKeyState(VK_NUMLOCK) & 1)
+        //         numLock.bkcolor = GREEN;
+        //     else
+        //         numLock.bkcolor = RED;
+        //     displayRows();
+        // }
         else if (curr == 8) /// BACKSPACE
         {
             typedText = true;
