@@ -36,6 +36,14 @@ struct Toggle{
     bool isSet = false;
 };
 
+struct Menu{
+    Point b;
+    int width;
+    int height;
+    int color;
+    Button *toggledBy;
+};
+
 void drawButton(Button button){
     setfillstyle(1,button.bkcolor);
     bar(button.b.x,button.b.y,button.b.x+button.buttonWidth,button.b.y+button.buttonHeight);
@@ -76,3 +84,4 @@ void drawToggle(Toggle toggle){
     setbkcolor(bkColor);
     setcolor(color);
 }
+

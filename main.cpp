@@ -15,6 +15,8 @@ using namespace std;
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton;
 Toggle wordWrap, numLock, capsLock;
+Menu findMenu, fontMenu;
+
 int font = 8; /// 8 - font recomandat, fara niciun offset
 double winLength, winHeight;
 int bkColor = COLOR(221, 234, 235);      // Culoarea de fundal;
@@ -42,6 +44,7 @@ bool changedText;
 double offsetHeight, offsetLength;
 double currWordLength = 0;
 int currWordStart = 0;
+int insideFindMenu = false;
 
 char *upArrow = "icons\\up.gif";
 char *downArrow = "icons\\down.gif";
@@ -74,6 +77,9 @@ struct editorConfig
 } editor, editorWrap;
 
 char *clipboard;
+char toFind[100];
+char toReplace[100];
+int findMenuBox = 0;
 char alltext[1000000];
 int indexStart = 0, indexFinish = 0;
 
@@ -96,6 +102,28 @@ void displayRows();
 void wordWrapAll();
 void alltextToNonWrap();
 void setTextFont();
+
+
+void drawFindMenu()
+{
+    setactivepage(getvisualpage());
+    bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
+    bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
+    int oldColor = getcolor();
+    int oldBkColor = getbkcolor();
+    setcolor(BLACK);
+    setbkcolor(WHITE);
+    settextstyle(0, 0, 0);
+    setviewport(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30, 1);
+    outtextxy(0, 0, toFind);
+    setviewport(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60, 1);
+    outtextxy(0, 0, toReplace);
+    setcolor(oldColor);
+    setbkcolor(oldBkColor);
+    setviewport(0, 0, winLength, winHeight, 0);
+    setTextFont();
+}
+
 
 void insertTime()
 {
@@ -296,21 +324,19 @@ void drawIcons()
     wordWrap.bkcolor = accentColor1;
     wordWrap.oncolor = accentColor2;
     wordWrap.isSet;
-    wordWrap.toggleWidth = wordWrap.radius * 2 + textwidth(wordWrap.text) + 15;
+    wordWrap.toggleWidth = wordWrap.radius * 2 + 85;
 
     numLock.toggleHeight = 40;
     numLock.radius = 8;
     numLock.text = "Num";
-    numLock.oncolor = accentColor2;
     numLock.isSet = false;
-    numLock.toggleWidth = numLock.radius * 2 + textwidth(numLock.text) + 15;
+    numLock.toggleWidth = numLock.radius * 2 + 35;
 
     capsLock.toggleHeight = 40;
     capsLock.radius = 8;
     capsLock.text = "Caps";
-    capsLock.oncolor = accentColor2;
     capsLock.isSet = false;
-    capsLock.toggleWidth = capsLock.radius * 2 + textwidth(capsLock.text) + 15;
+    capsLock.toggleWidth = capsLock.radius * 2 + 35;
 
     saveButton.bkcolor = COLOR(177, 187, 188);
     copyButton.bkcolor = COLOR(177, 187, 188);
@@ -322,14 +348,22 @@ void drawIcons()
     timeButton.bkcolor = COLOR(177, 187, 188);
 
     if (GetKeyState(VK_CAPITAL) & 1)
-        {capsLock.bkcolor = GREEN;}
+    {
+        capsLock.bkcolor = GREEN;
+    }
     else
-        {capsLock.bkcolor = RED;
-}
+    {
+        capsLock.bkcolor = RED;
+    }
+
     if (GetKeyState(VK_NUMLOCK) & 1)
-        {numLock.bkcolor = GREEN;}
+    {
+        numLock.bkcolor = GREEN;
+    }
     else
-        {numLock.bkcolor = RED;}
+    {
+        numLock.bkcolor = RED;
+    }
 
     saveButton.icon = "icons\\save_icon.gif";
     copyButton.icon = "icons\\copy_icon.gif";
@@ -379,8 +413,9 @@ void drawIcons()
     capsLock.center.x = capsLock.b.x + capsLock.radius + 5;
     capsLock.center.y = capsLock.b.y + capsLock.toggleHeight / 2;
 
-    
-    
+    findMenu.b.x = findButton.b.x;
+    findMenu.b.y = findButton.b.y + 10 + findButton.buttonHeight;
+
     drawToggle(capsLock);
     drawToggle(numLock);
     drawToggle(wordWrap);
@@ -501,6 +536,8 @@ void displayRows()
     bar(0, saveButton.buttonHeight + 10, winLength, winHeight);
 
     drawIcons();
+    drawToggle(numLock);
+    drawToggle(capsLock);
     setTextFont();
     setviewport(0, saveButton.buttonHeight + 10, winLength, winHeight, 1);
     currDisplayOffset = (currDisplayOffset > displayOffset) ? displayOffset : currDisplayOffset;
@@ -557,27 +594,6 @@ void displayRows()
                 setcolor(colPrev);
                 outtextxy(x - currDisplayOffset + textwidth(p) + textwidth(p2), y - currDisplayOffset2, p3);
             }
-            // else if(cursor.lin2 == i && cursor.lin == i+1 && isHl)
-            // {
-            //     bkPrev = getbkcolor();
-            //     colPrev = getcolor();
-            //     char *p = subStr(editor.row[i].text,0,cursor.col2-1);
-            //     outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
-            //     setcolor(hlText);
-            //     setbkcolor(hlTextBk);
-            //     char *p2 = subStr(editor.row[i].text,cursor.col2,strlen(editor.row[i].text));
-            //     outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
-            //     char *p3 = subStr(editor.row[i+1].text,0,cursor.col-1);
-            //     y+=textheight(editor.row[i].text);
-            //     outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
-            //     char *p4 = subStr(editor.row[i+1].text,cursor.col,strlen(editor.row[i+1].text));
-            //     setbkcolor(bkPrev);
-            //     setcolor(colPrev);
-            //     outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
-            //     isHl = false;
-            //     cout<<"Afisat";
-            //     i++;
-            // }
             else if (cursor.lin2 == i && i + 1 <= cursor.lin && isHl)
             {
                 bkPrev = getbkcolor();
@@ -635,27 +651,6 @@ void displayRows()
                 setcolor(colPrev);
                 outtextxy(x - currDisplayOffset + textwidth(p) + textwidth(p2), y - currDisplayOffset2, p3);
             }
-            // else if(cursorWrap.lin2 == i && cursorWrap.lin == i+1 && isHl)
-            // {
-            //     bkPrev = getbkcolor();
-            //     colPrev = getcolor();
-            //     char *p = subStr(editorWrap.row[i].text,0,cursorWrap.col2-1);
-            //     outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p);
-            //     setcolor(hlText);
-            //     setbkcolor(hlTextBk);
-            //     char *p2 = subStr(editorWrap.row[i].text,cursorWrap.col2,strlen(editorWrap.row[i].text));
-            //     outtextxy(x-currDisplayOffset+textwidth(p),y-currDisplayOffset2,p2);
-            //     char *p3 = subStr(editorWrap.row[i+1].text,0,cursorWrap.col-1);
-            //     y+=textheight(editorWrap.row[i].text);
-            //     outtextxy(x-currDisplayOffset,y-currDisplayOffset2,p3);
-            //     char *p4 = subStr(editorWrap.row[i+1].text,cursorWrap.col,strlen(editorWrap.row[i+1].text));
-            //     setbkcolor(bkPrev);
-            //     setcolor(colPrev);
-            //     outtextxy(x-currDisplayOffset+textwidth(p3),y-currDisplayOffset2,p4);
-            //     isHl = false;
-            //     cout<<"Afisat";
-            //     i++;
-            // }
             else if (cursorWrap.lin2 == i && i + 1 <= cursorWrap.lin && isHl)
             {
                 bkPrev = getbkcolor();
@@ -698,62 +693,6 @@ void displayRows()
     drawBar();
     swapbuffers();
 }
-
-// void debugFunc()
-// {
-//     for (int i = 0; i < 10; i++)
-//         editor.row[i].text = (char *)malloc(1000);
-//     editor.row[0].text = "This is some text\n";
-//     editor.row[1].text = "This is more text\n";
-//     editor.row[2].text = "This is a very lonbgsrbgsebgsbgbsgsbfjhgsf   asfasfasfsafa   asgsegasbtabrsbtyrasny   rdsnydsrnydsrnysdrnydsrnyss";
-//     editor.row[3].text = "row";
-//     editor.row[4].text = "row";
-//     editor.row[5].text = "row";
-//     editor.row[6].text = "row another very long row that i think will not fit on the screen";
-//     editor.row[7].text = "row";
-//     editor.row[8].text = "row";
-//     editor.row[9].text = "rowantgeantgeasnt";
-//     editor.row[10].text = "row";
-//     editor.row[11].text = "rowfageageeagb aes";
-//     editor.row[12].text = "row";
-//     editor.row[13].text = "row";
-//     editor.row[14].text = "row aetbastbase";
-//     editor.row[15].text = "row ateasbtaesta";
-//     editor.row[16].text = "row";
-//     editor.row[17].text = "rowabteabt";
-//     editor.row[18].text = "row";
-//     editor.row[19].text = "rowtaestnaesn tasetbaestnase tesantasbte";
-//     editor.row[20].text = "row152";
-//     editor.row[21].text = "row152";
-//     editor.row[22].text = "row152";
-//     editor.row[23].text = "row152";
-//     editor.row[24].text = "row152";
-//     editor.rowCount = 25;
-//     for (int i = 0; i < 100; i++)
-//     {
-//         if (textwidth(editor.row[i].text) - winLength > displayOffset)
-//         {
-//             displayOffset = textwidth(editor.row[i].text) - winLength + 29; // 8 de la marginea din stanga + 21 in caz ca e nevoie de Scroll vertical
-//             barRaport = (double)(winLength - 29) / (winLength + displayOffset - 29);
-//         }
-//     }
-//     if (editor.rowCount * textheight(editor.row[0].text) > winHeight - saveButton.buttonHeight - 31)
-//     {
-//         displayOffset2 = editor.rowCount * textheight(editor.row[0].text) - winHeight + saveButton.iconHeight + 31;
-//         barRaport2 = (double)(winHeight - saveButton.buttonHeight - 31) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
-//     }
-//     setcolor(BLACK);
-//     displayRows();
-//     if (displayOffset > 0)
-//         drawArrowsHorizontal();
-//     if (displayOffset2 > 0)
-//         drawArrowsVertical();
-//     char curr = getch();
-//     while (curr != 27)
-//     {
-//         curr = getch();
-//     }
-// }
 
 void setTextFont()
 {
@@ -860,11 +799,14 @@ void shiftDown()
     }
 }
 
+
+
 void getButtonClick(int x, int y)
 {
     setactivepage(getvisualpage());
     Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton};
     int buttCount = 8;
+    if(!insideFindMenu)
     for (int i = 0; i < buttCount; i++)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
@@ -887,6 +829,26 @@ void getButtonClick(int x, int y)
             }
             if (strcmp(b[i].text, "Time/Date") == 0)
                 insertTime();
+            if (strcmp(b[i].text, "Find & Replace") == 0)
+            {
+                insideFindMenu = true;
+                findMenuBox = 1;
+                setfillstyle(1, accentColor1);
+                bar(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height);
+                setfillstyle(1, WHITE);
+                bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
+                bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
+                toFind[0] = '\0';
+                toReplace[0] = '\0';
+                settextstyle(0,0,0);
+                int oldbkcolor = getbkcolor();
+                setbkcolor(accentColor1);
+                outtextxy(findMenu.b.x+findMenu.width/6-textwidth("FIND")/2,findMenu.b.y+findMenu.height-textheight("FIND")/2-20,"FIND");
+                outtextxy(findMenu.b.x+findMenu.width/6+findMenu.width/3*1-textwidth("REPLACE ")/2,findMenu.b.y+findMenu.height-20-textheight("REPLACE")/2,"REPLACE");
+                outtextxy(findMenu.b.x+findMenu.width/6+findMenu.width/3*2-textwidth("REPLACE  ALL")/2,findMenu.b.y+findMenu.height-20-textheight("REPLACE ALL")/2,"REPLACE ALL");
+                setbkcolor(oldbkcolor);
+                drawFindMenu();
+            }
         }
     }
     if (displayOffset > 0 && 0 <= x && x <= 20 && winHeight - 20 <= y && y <= winHeight)
@@ -920,6 +882,7 @@ void getMouseHover(int x, int y)
     setactivepage(getvisualpage());
     Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton};
     int buttCount = 8;
+    if(!insideFindMenu)
     for (int i = 0; i < buttCount; i++)
     {
         if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
@@ -944,6 +907,8 @@ void getMouseHover(int x, int y)
 
 void getRClickDown(int x, int y)
 {
+    if(insideFindMenu)
+        return;
     Point cursorP;
     cursorP.x = x - 8 + currDisplayOffset;
     cursorP.y = y - saveButton.buttonHeight - 10 + currDisplayOffset2;
@@ -1000,6 +965,8 @@ void getRClickDown(int x, int y)
 
 void getRClickUp(int x, int y)
 {
+    if(insideFindMenu)
+        return;
     Point cursorP;
     cursorP.x = x - 8 + currDisplayOffset;
     cursorP.y = y - saveButton.buttonHeight - 10 + currDisplayOffset2;
@@ -1091,6 +1058,8 @@ void getRClickUp(int x, int y)
 
 void windowsInit()
 {
+    findMenu.width = 300;
+    findMenu.height = 100;
     /// initializare fereastra
     // thread th1(changeCursorColor);
     winLength = 1280;
@@ -1320,117 +1289,168 @@ void readText(char *location)
     curr = getch();
     while (curr != 27 || GetKeyState(VK_CAPITAL) >> 7 || GetKeyState(VK_NUMLOCK) >> 7) /// escape
     {
-        printf("Caracterul scris: %d\n", curr);
-        fflush(stdin);
-        if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('A') >> 7)
+        if (!insideFindMenu)
         {
-            indexStart = 0;
-            indexFinish = strlen(alltext);
-            isHl = true;
-            displayRows();
-        }
-        else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('C') >> 7)
-            copy();
-        else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('V') >> 7)
-            paste();
-        else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('X') >> 7)
-            cut();
-        else if (GetKeyState(VK_UP))
-        {
-            shiftUp();
-            curr = 0;
-        }
-        else if (GetKeyState(VK_DOWN))
-        {
-            shiftDown();
-            curr = 0;
-        }
-        else if (GetKeyState(VK_LEFT))
-        {
-            shiftLeft();
-            curr = 0;
-        }
-        else if (GetKeyState(VK_RIGHT))
-        {
-            shiftRight();
-            curr = 0;
-        }
-        // else if (GetKeyState(VK_CAPITAL)>>7)
-        // {
-        //     cout<<"CAPS";
-        //     if (GetKeyState(VK_CAPITAL) & 1)
-        //         capsLock.bkcolor = GREEN;
-        //     else
-        //         capsLock.bkcolor = RED;
-        //     displayRows();
-        // }
-        // else if (GetKeyState(VK_NUMLOCK)>>7)
-        // {
-        //     cout<<"NUM";
-        //     if (GetKeyState(VK_NUMLOCK) & 1)
-        //         numLock.bkcolor = GREEN;
-        //     else
-        //         numLock.bkcolor = RED;
-        //     displayRows();
-        // }
-        else if (curr == 8) /// BACKSPACE
-        {
-            typedText = true;
-            if (isHl)
+            printf("Caracterul scris: %d\n", curr);
+            fflush(stdin);
+            if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('A') >> 7)
             {
-                stergere(alltext, indexStart, indexFinish);
-                isHl = false;
-                indexFinish = indexStart;
+                indexStart = 0;
+                indexFinish = strlen(alltext);
+                isHl = true;
                 displayRows();
             }
-            else if (indexStart > 0)
+            else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('C') >> 7)
+                copy();
+            else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('V') >> 7)
+                paste();
+            else if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('X') >> 7)
+                cut();
+            else if (GetKeyState(VK_UP))
             {
-                stergere(alltext, indexStart - 1, indexStart);
-                indexStart--;
-                indexFinish = indexStart;
-                displayRows();
+                shiftUp();
+                curr = 0;
             }
-        }
-        else if (curr != NULL && (isprint(curr) || curr == 9 || curr == 13))
-        {
-            typedText = true;
-            /// text[lgtext].c = curr;
-            if (curr == 9) /// TAB
+            else if (GetKeyState(VK_DOWN))
             {
-                curr = ' ';
-                /**editor.row[cursor.lin].text[cursor.col++] = ' ';
-                editor.row[cursor.lin].text[cursor.col++] = ' ';
-                editor.row[cursor.lin].text[cursor.col++] = ' '; */
-                inserare(alltext, "    ", indexStart, indexFinish);
-                indexStart += 3;
-                indexFinish = indexStart;
-                /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
+                shiftDown();
+                curr = 0;
             }
-            else
+            else if (GetKeyState(VK_LEFT))
             {
-                temp[0] = curr;
-                temp[1] = 0;
-                inserare(alltext, temp, indexStart, indexFinish);
+                shiftLeft();
+                curr = 0;
             }
-            /// setPosChar(&curr);
-            if (curr == 13)
+            else if (GetKeyState(VK_RIGHT))
             {
-                /**editor.row[cursor.lin].text[cursor.col] = '\n';
-                editor.rowCount++;*/
-                alltext[indexStart] = '\n';
+                shiftRight();
+                curr = 0;
+            }
+            // else if (GetKeyState(VK_CAPITAL)>>7)
+            // {
+            //     cout<<"CAPS";
+            //     if (GetKeyState(VK_CAPITAL) & 1)
+            //         capsLock.bkcolor = GREEN;
+            //     else
+            //         capsLock.bkcolor = RED;
+            //     displayRows();
+            // }
+            // else if (GetKeyState(VK_NUMLOCK)>>7)
+            // {
+            //     cout<<"NUM";
+            //     if (GetKeyState(VK_NUMLOCK) & 1)
+            //         numLock.bkcolor = GREEN;
+            //     else
+            //         numLock.bkcolor = RED;
+            //     displayRows();
+            // }
+            else if (curr == 8) /// BACKSPACE
+            {
+                typedText = true;
+                if (isHl)
+                {
+                    stergere(alltext, indexStart, indexFinish);
+                    isHl = false;
+                    indexFinish = indexStart;
+                    displayRows();
+                }
+                else if (indexStart > 0)
+                {
+                    stergere(alltext, indexStart - 1, indexStart);
+                    indexStart--;
+                    indexFinish = indexStart;
+                    displayRows();
+                }
+            }
+            else if (curr != NULL && (isprint(curr) || curr == 9 || curr == 13))
+            {
+                typedText = true;
+                /// text[lgtext].c = curr;
+                if (curr == 9) /// TAB
+                {
+                    curr = ' ';
+                    /**editor.row[cursor.lin].text[cursor.col++] = ' ';
+                    editor.row[cursor.lin].text[cursor.col++] = ' ';
+                    editor.row[cursor.lin].text[cursor.col++] = ' '; */
+                    inserare(alltext, "    ", indexStart, indexFinish);
+                    indexStart += 3;
+                    indexFinish = indexStart;
+                    /// inserare(editor.row[cursor.lin].text,"    ",cursor.col)
+                }
+                else
+                {
+                    temp[0] = curr;
+                    temp[1] = 0;
+                    inserare(alltext, temp, indexStart, indexFinish);
+                }
+                /// setPosChar(&curr);
+                if (curr == 13)
+                {
+                    /**editor.row[cursor.lin].text[cursor.col] = '\n';
+                    editor.rowCount++;*/
+                    alltext[indexStart] = '\n';
 
-                indexStart++;
-                indexFinish = indexStart;
+                    indexStart++;
+                    indexFinish = indexStart;
+                }
+                else
+                {
+                    indexStart++;
+                    indexFinish = indexStart;
+                }
+                isHl = false;
+                displayRows();
             }
-            else
+        }
+        else
+        {
+            if (insideFindMenu)
             {
-                indexStart++;
-                indexFinish = indexStart;
+                if (curr != 13)
+                {
+                    if (findMenuBox == 1)
+                    {
+                        cout << "TOFIND";
+                        if (isprint(curr))
+                        {
+                            int len = strlen(toFind);
+                            toFind[len] = curr;
+                            toFind[len + 1] = '\0';
+                            cout << toFind << endl;
+                        }
+                        else if (curr == 8)
+                        {
+                            toFind[strlen(toFind) - 1] = '\0';
+                        }
+                    }
+                    else if (findMenuBox == 2)
+                    {
+                        cout << "TOREPLACE";
+                        if (isprint(curr))
+                        {
+                            int len = strlen(toReplace);
+                            toReplace[len] = curr;
+                            toReplace[len + 1] = '\0';
+                            cout << toReplace << endl;
+                        }
+                        else if (curr == 8)
+                        {
+                            toReplace[strlen(toReplace) - 1] = '\0';
+                        }
+                    }
+                }
+                else
+                    findMenuBox++;
+                drawFindMenu();
             }
-            isHl = false;
-            displayRows();
         }
         curr = getch();
+        if (curr == 27 && insideFindMenu)
+        {
+            insideFindMenu = false;
+            curr = 0;
+            displayRows();
+        }
         fflush(stdin);
     }
 }
