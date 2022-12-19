@@ -14,6 +14,7 @@ using namespace std;
 
 double lengthError;
 Button saveButton, copyButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton;
+Button lnColInd;
 Toggle wordWrap, numLock, capsLock;
 Menu findMenu, fontMenu;
 
@@ -103,10 +104,21 @@ void wordWrapAll();
 void alltextToNonWrap();
 void setTextFont();
 
-
 void drawFindMenu()
 {
     setactivepage(getvisualpage());
+    setfillstyle(1, accentColor1);
+    bar(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height+30);
+    setfillstyle(1, WHITE);
+    bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
+    bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
+    settextstyle(0, 0, 0);
+    int oldbkcolor = getbkcolor();
+    setbkcolor(accentColor1);
+    outtextxy(findMenu.b.x + findMenu.width / 6 - textwidth("FIND") / 2, findMenu.b.y + findMenu.height - textheight("FIND") / 2 - 20, "FIND");
+    outtextxy(findMenu.b.x + findMenu.width / 6 + findMenu.width / 3 * 1 - textwidth("REPLACE ") / 2, findMenu.b.y + findMenu.height - 20 - textheight("REPLACE") / 2, "REPLACE");
+    outtextxy(findMenu.b.x + findMenu.width / 6 + findMenu.width / 3 * 2 - textwidth("REPLACE  ALL") / 2, findMenu.b.y + findMenu.height - 20 - textheight("REPLACE ALL") / 2, "REPLACE ALL");
+    setbkcolor(oldbkcolor);
     bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
     bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
     int oldColor = getcolor();
@@ -123,7 +135,6 @@ void drawFindMenu()
     setviewport(0, 0, winLength, winHeight, 0);
     setTextFont();
 }
-
 
 void insertTime()
 {
@@ -142,22 +153,28 @@ int howManyFound(char *alltext, char *toBeFound)
     char *p = alltext;
     while (p)
     {
-        p = strstr(alltext, toBeFound);
+        p = strstr(p, toBeFound);
+        if(p==NULL)
+            {ans++;
+            break;}
+            
         p++;
         ans++;
     }
     return ans;
 }
 
-void findFirst(char *alltext, char *toBeFound)
+bool findFirst(char *textToSearch, char *toBeFound)
 {
-    char *p = strstr(alltext, toBeFound);
+    char *p = strstr(textToSearch, toBeFound);
     if (!p)
-        return;
+        {cout<<"Nu am gasit";
+        return false;}
     indexStart = (p - alltext);
     indexFinish = indexStart + strlen(toBeFound);
     isHl = typedText = true;
     displayRows();
+    return true;
 }
 
 void replaceFirst(char *alltext, char *toReplace)
@@ -284,6 +301,8 @@ void indexToCurs(int index, int &lin, int &col)
     // printf("INDEX: %d => [%d %d]\n", index, lin, col);
 }
 
+char lncol[100];
+
 void drawCursor(Cursor cursor)
 {
     Point cursorP = cursorPosition(cursor);
@@ -293,6 +312,26 @@ void drawCursor(Cursor cursor)
     setcolor(cursColor);
     line(x - currDisplayOffset, y - currDisplayOffset2, x - currDisplayOffset, y - currDisplayOffset2 + textheight("String"));
     setcolor(prevColor);
+    Point cursorNormal = cursorPosition(::cursor);
+    
+    lncol[0]='\0';
+    
+    int lin,col;
+    char ln[100],cl[100];
+    int oldWrap = editor.isWordWrap;
+    editor.isWordWrap = 0;
+    indexToCurs(indexFinish,lin,col);
+    editor.isWordWrap = oldWrap;
+    
+    itoa(lin+1,ln,10);
+    itoa(col+1,cl,10);
+    strcat(lncol,"Ln ");
+    strcat(lncol,ln);
+    strcat(lncol,", Col ");
+    
+    strcat(lncol,cl);
+    
+    lnColInd.text = lncol;
 }
 
 void openTxt(char *location)
@@ -346,6 +385,7 @@ void drawIcons()
     cutButton.bkcolor = COLOR(177, 187, 188);
     findButton.bkcolor = COLOR(177, 187, 188);
     timeButton.bkcolor = COLOR(177, 187, 188);
+    lnColInd.bkcolor = bkColor;
 
     if (GetKeyState(VK_CAPITAL) & 1)
     {
@@ -379,6 +419,7 @@ void drawIcons()
     openButton.text = "Open";
     findButton.text = "Find & Replace";
     timeButton.text = "Time/Date";
+    if(lnColInd.text == NULL) lnColInd.text ="Ln 1, Col 1";
 
     fontButton.font = font;
 
@@ -388,6 +429,9 @@ void drawIcons()
     int offset = 5;
     timeButton.buttonWidth = findButton.buttonWidth = openButton.buttonWidth = cutButton.buttonWidth = saveButton.buttonWidth = pasteButton.buttonWidth = copyButton.buttonWidth = fontButton.buttonWidth = 100;
     timeButton.buttonHeight = findButton.buttonHeight = openButton.buttonHeight = cutButton.buttonHeight = saveButton.buttonHeight = pasteButton.buttonHeight = copyButton.buttonHeight = fontButton.buttonHeight = 40;
+
+    lnColInd.buttonHeight = 40;
+    lnColInd.buttonWidth = 145;
 
     findButton.buttonWidth = 140;
     saveButton.b.x = offset;
@@ -401,8 +445,9 @@ void drawIcons()
     wordWrap.b.x = timeButton.b.x + timeButton.buttonWidth + offset * 3;
     numLock.b.x = wordWrap.b.x + wordWrap.toggleWidth + offset;
     capsLock.b.x = numLock.b.x + numLock.toggleWidth + offset;
+    lnColInd.b.x = winLength-lnColInd.buttonWidth-offset;
 
-    numLock.b.y = capsLock.b.y = timeButton.b.y = findButton.b.y = openButton.b.y = cutButton.b.y = saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
+    lnColInd.b.y = numLock.b.y = capsLock.b.y = timeButton.b.y = findButton.b.y = openButton.b.y = cutButton.b.y = saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
 
     wordWrap.center.x = wordWrap.b.x + wordWrap.radius + 5;
     wordWrap.center.y = wordWrap.b.y + wordWrap.toggleHeight / 2;
@@ -428,6 +473,7 @@ void drawIcons()
     drawButton(cutButton);
     drawButton(findButton);
     drawButton(timeButton);
+    drawButton(lnColInd);
 
     registermousehandler(WM_LBUTTONDOWN, getButtonClick);
     registermousehandler(WM_MOUSEMOVE, getMouseHover);
@@ -528,6 +574,7 @@ void displayRows()
     setactivepage(!page);
     page = !page;
     int x = 8, y = 0;
+    setbkcolor(bkColor);
     if (editor.isWordWrap)
         calculateBar(editorWrap);
     else
@@ -685,11 +732,13 @@ void displayRows()
                 outtextxy(x - currDisplayOffset, y - currDisplayOffset2, editorWrap.row[i].text);
             y += textheight(editorWrap.row[i].text);
         }
+    alltextToNonWrap();
     if (editor.isWordWrap == 0)
         drawCursor(cursor);
     else
         drawCursor(cursorWrap);
     setviewport(0, 0, winLength, winHeight, 1);
+    drawButton(lnColInd);
     drawBar();
     swapbuffers();
 }
@@ -700,47 +749,47 @@ void setTextFont()
     switch (font)
     {
     case 1:
-        settextstyle(TRIPLEX_FONT, 0, 0);
+        settextstyle(TRIPLEX_FONT, 0, 5);
         lengthError = 1.3;
         break;
     case 2:
-        settextstyle(SMALL_FONT, 0, 0);
+        settextstyle(SMALL_FONT, 0, 10);
         lengthError = 1;
         break;
     case 3:
-        settextstyle(SANS_SERIF_FONT, 0, 0);
+        settextstyle(SANS_SERIF_FONT, 0, 5);
         lengthError = 1;
         break;
     case 4:
-        settextstyle(GOTHIC_FONT, 0, 0);
+        settextstyle(GOTHIC_FONT, 0, 5);
         lengthError = 1.2;
         break;
     case 5:
-        settextstyle(SCRIPT_FONT, 0, 0);
+        settextstyle(SCRIPT_FONT, 0, 5);
         lengthError = 1;
         break;
     case 6:
-        settextstyle(SIMPLEX_FONT, 0, 0);
+        settextstyle(SIMPLEX_FONT, 0, 5);
         lengthError = 1.3;
         break;
     case 7:
-        settextstyle(TRIPLEX_SCR_FONT, 0, 0);
+        settextstyle(TRIPLEX_SCR_FONT, 0, 5);
         lengthError = 1;
         break;
     case 8:
-        settextstyle(COMPLEX_FONT, 0, 10);
+        settextstyle(COMPLEX_FONT, 0, 5);
         lengthError = 1;
         break;
     case 9:
-        settextstyle(EUROPEAN_FONT, 0, 0);
+        settextstyle(EUROPEAN_FONT, 0, 5);
         lengthError = 1.3;
         break;
     case 10:
-        settextstyle(BOLD_FONT, 0, 0);
+        settextstyle(BOLD_FONT, 0, 5);
         lengthError = 1.1;
         break;
     default:
-        settextstyle(DEFAULT_FONT, 0, 0);
+        settextstyle(DEFAULT_FONT, 0, 5);
         lengthError = 1.2;
         break;
     }
@@ -799,81 +848,130 @@ void shiftDown()
     }
 }
 
-
+char *locationFound;
 
 void getButtonClick(int x, int y)
 {
     setactivepage(getvisualpage());
     Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton};
     int buttCount = 8;
-    if(!insideFindMenu)
-    for (int i = 0; i < buttCount; i++)
+    if (!insideFindMenu)
     {
-        if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
+        for (int i = 0; i < buttCount; i++)
         {
-            cout << b[i].text << " ";
-            if (strcmp(b[i].text, "Copy") == 0)
-                copy();
-            if (strcmp(b[i].text, "Paste") == 0)
-                paste();
-            if (strcmp(b[i].text, "Cut") == 0)
-                cut();
-            if (strcmp(b[i].text, "Font") == 0)
+            if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
             {
-                font = (font + 1) % 11;
-                setTextFont();
-                typedText = true;
-                displayRows();
-                fontButton.font = font;
-                drawButton(fontButton);
-            }
-            if (strcmp(b[i].text, "Time/Date") == 0)
-                insertTime();
-            if (strcmp(b[i].text, "Find & Replace") == 0)
-            {
-                insideFindMenu = true;
-                findMenuBox = 1;
-                setfillstyle(1, accentColor1);
-                bar(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height);
-                setfillstyle(1, WHITE);
-                bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
-                bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
-                toFind[0] = '\0';
-                toReplace[0] = '\0';
-                settextstyle(0,0,0);
-                int oldbkcolor = getbkcolor();
-                setbkcolor(accentColor1);
-                outtextxy(findMenu.b.x+findMenu.width/6-textwidth("FIND")/2,findMenu.b.y+findMenu.height-textheight("FIND")/2-20,"FIND");
-                outtextxy(findMenu.b.x+findMenu.width/6+findMenu.width/3*1-textwidth("REPLACE ")/2,findMenu.b.y+findMenu.height-20-textheight("REPLACE")/2,"REPLACE");
-                outtextxy(findMenu.b.x+findMenu.width/6+findMenu.width/3*2-textwidth("REPLACE  ALL")/2,findMenu.b.y+findMenu.height-20-textheight("REPLACE ALL")/2,"REPLACE ALL");
-                setbkcolor(oldbkcolor);
-                drawFindMenu();
+                cout << b[i].text << " ";
+                if (strcmp(b[i].text, "Copy") == 0)
+                    copy();
+                if (strcmp(b[i].text, "Paste") == 0)
+                    paste();
+                if (strcmp(b[i].text, "Cut") == 0)
+                    cut();
+                if (strcmp(b[i].text, "Font") == 0)
+                {
+                    font = (font + 1) % 11;
+                    setTextFont();
+                    typedText = true;
+                    displayRows();
+                    fontButton.font = font;
+                    drawButton(fontButton);
+                }
+                if (strcmp(b[i].text, "Time/Date") == 0)
+                    insertTime();
+                if (strcmp(b[i].text, "Find & Replace") == 0)
+                {
+                    insideFindMenu = true;
+                    findMenuBox = 1;
+                    toFind[0] = '\0';
+                    toReplace[0] = '\0';
+                    locationFound = alltext;
+                    drawFindMenu();
+                }
             }
         }
-    }
-    if (displayOffset > 0 && 0 <= x && x <= 20 && winHeight - 20 <= y && y <= winHeight)
-        shiftLeft();
-    if (displayOffset > 0 && winLength - 20 <= x && x <= winLength && winHeight - 20 <= y && y <= winHeight)
-        shiftRight();
-    if (displayOffset2 > 0 && (winLength - 20) <= x && x <= winLength && (saveButton.buttonHeight + 10) <= y && y <= (saveButton.buttonHeight + 30))
-        shiftUp();
-    if (displayOffset2 > 0 && (winLength - 20) <= x && x <= winLength && (winHeight - 40) <= y && y <= (winHeight - 20))
-        shiftDown();
+        if (displayOffset > 0 && 0 <= x && x <= 20 && winHeight - 20 <= y && y <= winHeight)
+            shiftLeft();
+        if (displayOffset > 0 && winLength - 20 <= x && x <= winLength && winHeight - 20 <= y && y <= winHeight)
+            shiftRight();
+        if (displayOffset2 > 0 && (winLength - 20) <= x && x <= winLength && (saveButton.buttonHeight + 10) <= y && y <= (saveButton.buttonHeight + 30))
+            shiftUp();
+        if (displayOffset2 > 0 && (winLength - 20) <= x && x <= winLength && (winHeight - 40) <= y && y <= (winHeight - 20))
+            shiftDown();
 
-    if (wordWrap.center.x - wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
+        if (wordWrap.center.x - wordWrap.radius <= x && x <= wordWrap.center.x + wordWrap.radius && wordWrap.center.y - wordWrap.radius <= y && y <= wordWrap.center.y + wordWrap.radius)
+        {
+            wordWrap.isSet = 1 - wordWrap.isSet;
+            editor.isWordWrap = wordWrap.isSet;
+            drawToggle(wordWrap);
+            swapbuffers();
+            isHl = false;
+            changedText = true;
+            cursor.lin2 = cursor.lin;
+            cursor.col2 = cursor.col;
+            cursorWrap.lin2 = cursorWrap.lin;
+            cursorWrap.col2 = cursorWrap.col;
+            typedText = true;
+            displayRows();
+        }
+    }
+    else
     {
-        wordWrap.isSet = 1 - wordWrap.isSet;
-        editor.isWordWrap = wordWrap.isSet;
-        drawToggle(wordWrap);
-        swapbuffers();
-        isHl = false;
-        changedText = true;
-        cursor.lin2 = cursor.lin;
-        cursor.col2 = cursor.col;
-        cursorWrap.lin2 = cursorWrap.lin;
-        cursorWrap.col2 = cursorWrap.col;
-        typedText = true;
-        displayRows();
+        if (findMenu.b.x <= x && x <= findMenu.b.x + findMenu.width / 3 && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
+        {
+            cout <<howManyFound(alltext,toFind)<<endl;
+            if(!findFirst(locationFound, toFind) && locationFound == alltext)
+                return;
+            if(!findFirst(locationFound, toFind) && locationFound > alltext)
+                locationFound=alltext;
+            findFirst(locationFound,toFind);
+            locationFound = strstr(locationFound,toFind);
+            locationFound+=1;
+            displayRows();
+            drawFindMenu();
+            //(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height+30);
+            char apparitions[100]="There are ";
+            char count[100];
+            itoa(howManyFound(alltext,toFind),count,10);
+            strcat(apparitions,count);
+            strcat(apparitions," match(es).");
+            int oldColor = getcolor();
+            int oldBkColor = getbkcolor();
+            setcolor(BLACK);
+            setbkcolor(accentColor1);
+            settextstyle(0, 0, 0);
+            outtextxy(findMenu.b.x+10,findMenu.b.y+findMenu.height,apparitions);
+            setcolor(oldColor);
+            setcolor(oldBkColor);
+            setTextFont();
+        }
+        if (findMenu.b.x + findMenu.width / 3 <= x && x <= findMenu.b.x + findMenu.width / 3 * 2 && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
+        {
+            if(!findFirst(locationFound, toFind) && locationFound == alltext)
+                return;
+            if(!findFirst(locationFound, toFind) && locationFound > alltext)
+                locationFound=alltext;
+            if(strcmp(subStr(alltext,indexStart,indexFinish-1),toReplace)!=0)
+            {
+                    locationFound = alltext;
+                    findFirst(locationFound,toFind);
+            }
+            replaceFirst(locationFound,toReplace);
+            locationFound=alltext;
+            findFirst(locationFound,toFind);
+            displayRows();
+            drawFindMenu();
+        }
+        if (findMenu.b.x + findMenu.width / 3 * 2 <= x && x <= findMenu.b.x + findMenu.width && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
+        {
+            while(findFirst(alltext,toFind))
+            {
+                replaceFirst(alltext,toReplace);
+                locationFound=alltext;
+            }
+            insideFindMenu=false;
+            displayRows();
+        }
     }
 }
 
@@ -882,32 +980,32 @@ void getMouseHover(int x, int y)
     setactivepage(getvisualpage());
     Button b[] = {copyButton, saveButton, pasteButton, fontButton, openButton, cutButton, findButton, timeButton};
     int buttCount = 8;
-    if(!insideFindMenu)
-    for (int i = 0; i < buttCount; i++)
-    {
-        if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
+    if (!insideFindMenu)
+        for (int i = 0; i < buttCount; i++)
         {
-            int prevColor = getcolor();
-            setlinestyle(0, 0, 1);
-            setcolor(COLOR(99, 110, 109));
-            rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
-            setcolor(prevColor);
+            if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight && b[i].bkcolor != COLOR(99, 110, 109))
+            {
+                int prevColor = getcolor();
+                setlinestyle(0, 0, 1);
+                setcolor(COLOR(99, 110, 109));
+                rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
+                setcolor(prevColor);
+            }
+            else if (x <= b[buttCount - 1].b.x + b[buttCount - 1].buttonWidth + 5 && y <= b[buttCount - 1].b.y + b[buttCount - 1].buttonHeight + 5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth || b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177, 188, 187))
+            {
+                int prevColor = getcolor();
+                setlinestyle(0, 0, 1);
+                setcolor(COLOR(177, 188, 187));
+                rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
+                setcolor(prevColor);
+            }
         }
-        else if (x <= b[buttCount - 1].b.x + b[buttCount - 1].buttonWidth + 5 && y <= b[buttCount - 1].b.y + b[buttCount - 1].buttonHeight + 5 && (b[i].b.x > x || x > b[i].b.x + b[i].buttonWidth || b[i].b.y > y || y > b[i].b.y + b[i].buttonHeight) && b[i].bkcolor != COLOR(177, 188, 187))
-        {
-            int prevColor = getcolor();
-            setlinestyle(0, 0, 1);
-            setcolor(COLOR(177, 188, 187));
-            rectangle(b[i].b.x + 1, b[i].b.y + 1, b[i].b.x + b[i].buttonWidth - 1, b[i].b.y + b[i].buttonHeight - 1);
-            setcolor(prevColor);
-        }
-    }
     swapbuffers();
 }
 
 void getRClickDown(int x, int y)
 {
-    if(insideFindMenu)
+    if (insideFindMenu)
         return;
     Point cursorP;
     cursorP.x = x - 8 + currDisplayOffset;
@@ -965,7 +1063,7 @@ void getRClickDown(int x, int y)
 
 void getRClickUp(int x, int y)
 {
-    if(insideFindMenu)
+    if (insideFindMenu)
         return;
     Point cursorP;
     cursorP.x = x - 8 + currDisplayOffset;
