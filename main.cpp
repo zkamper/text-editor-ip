@@ -23,7 +23,6 @@
 #include "siruri.h"
 #define NMAX 10000
 
-
 using namespace std;
 
 double lengthError;
@@ -44,8 +43,7 @@ int cursColor = accentColor3;
 int toggleOnColor = COLOR(22, 242, 95);  // Indicator ON
 int toggleOffColor = COLOR(130, 10, 10); // Indicator OFF
 
-
-//Variabile pentru a calcula bara de scroll
+// Variabile pentru a calcula bara de scroll
 double displayOffset = 0;
 double displayOffset2 = 0;
 double currDisplayOffset = 0;
@@ -62,17 +60,15 @@ bool changedText;
 int insideFindMenu = false;
 int findMenuBox = 0;
 
-//Variabile WordWrap
+// Variabile WordWrap
 double offsetHeight, offsetLength;
 double currWordLength = 0;
 int currWordStart = 0;
-
 
 char *upArrow = "icons\\up.gif";
 char *downArrow = "icons\\down.gif";
 char *leftArrow = "icons\\left.gif";
 char *rightArrow = "icons\\right.gif";
-
 
 // Prima structura folosita pt. WordWrap
 struct
@@ -93,7 +89,7 @@ struct row
     int index;
 };
 
-struct editorConfig //Structura ce retine randurile
+struct editorConfig // Structura ce retine randurile
 {
     row row[10000];
     bool isWordWrap = false;
@@ -101,27 +97,26 @@ struct editorConfig //Structura ce retine randurile
     int rowCount = 1;
 } editor, editorWrap;
 
-struct Cursor   //Structura ce retine indexul cursorului in functie de linii si coloane
+struct Cursor // Structura ce retine indexul cursorului in functie de linii si coloane
 {
     int lin = 0, col = 0, lin2 = 0, col2 = 0;
 } cursor, cursorWrap;
 
 char lncol[100];
 
-char alltext[1000000];  //Structura ce retine textul in memorie, pe ea se fac toate functiile
-int indexStart = 0, indexFinish = 0;    //Indexul cursorului in memorie
+char alltext[1000000];               // Structura ce retine textul in memorie, pe ea se fac toate functiile
+int indexStart = 0, indexFinish = 0; // Indexul cursorului in memorie
 
-
-//Clipboard, text de cautat si text de inlocuit
+// Clipboard, text de cautat si text de inlocuit
 char *clipboard;
 char toFind[100];
 char toReplace[100];
 
 char *locationFound;
 
-char *location; //Locatia fisierului text
+char *location; // Locatia fisierului text
 
-//Prototipul functiilor folosite
+// Prototipul functiilor folosite
 int cursorToIndex(int lin, int col);
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
@@ -204,7 +199,7 @@ bool findFirst(char *textToSearch, char *toBeFound)
     char *p = strstr(textToSearch, toBeFound);
     if (!p)
     {
-        //cout << "Nu am gasit";
+        // cout << "Nu am gasit";
         return false;
     }
     indexStart = (p - alltext);
@@ -228,7 +223,7 @@ void copy()
     if (!isHl)
         return;
     clipboard = subStr(alltext, indexStart, indexFinish - 1);
-    //cout << clipboard << endl;
+    // cout << clipboard << endl;
 }
 
 void cut()
@@ -383,10 +378,10 @@ int cursorToIndex(int lin, int col)
 
 void open()
 {
-    location = (char*)malloc(1000);
-    location[0]='\0';
-    cout<<"Open from: ";
-    cin>>location;
+    location = (char *)malloc(1000);
+    location[0] = '\0';
+    cout << "Open from: ";
+    cin >> location;
     FILE *myFile = fopen(location, "r");
     while (!feof(myFile))
     {
@@ -610,7 +605,6 @@ void calculateBar(editorConfig editor)
         barRaport2 = (double)(winHeight - saveButton.buttonHeight - 31) / (winHeight - saveButton.buttonHeight - 31 + displayOffset2);
     }
 }
-
 
 void displayRows()
 {
@@ -905,7 +899,7 @@ void getButtonClick(int x, int y)
         {
             if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
             {
-                //cout << b[i].text << " ";
+                // cout << b[i].text << " ";
                 if (strcmp(b[i].text, "Copy") == 0)
                     copy();
                 if (strcmp(b[i].text, "Paste") == 0)
@@ -934,7 +928,7 @@ void getButtonClick(int x, int y)
                 }
                 if (strcmp(b[i].text, "Save") == 0)
                 {
-                    //cout << "SAVE";
+                    // cout << "SAVE";
                     save();
                 }
                 if (strcmp(b[i].text, "Open") == 0)
@@ -972,7 +966,7 @@ void getButtonClick(int x, int y)
     {
         if (findMenu.b.x <= x && x <= findMenu.b.x + findMenu.width / 3 && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
         {
-            //cout << howManyFound(alltext, toFind) << endl;
+            // cout << howManyFound(alltext, toFind) << endl;
             if (!findFirst(locationFound, toFind) && locationFound == alltext)
                 return;
             if (!findFirst(locationFound, toFind) && locationFound > alltext)
@@ -1207,7 +1201,6 @@ void getRClickUp(int x, int y)
     displayRows();
 }
 
-
 void initBuffer()
 {
     int formerPage = getactivepage();
@@ -1361,7 +1354,7 @@ void wordWrapAll()
         editorWrap.row[i].text[0] = '\0';
     if (editor.row[0].text[0] == NULL)
     {
-        //cout << "Cannot wordwrap.\n";
+        // cout << "Cannot wordwrap.\n";
         editor.isWordWrap = 1 - wordWrap.isSet;
         wordWrap.isSet = 1 - wordWrap.isSet;
         drawToggle(wordWrap);
@@ -1438,14 +1431,14 @@ void readText(char *location)
         // editor.row[i].text[0] = '\0';
         // editorWrap.row[i].text[0] = '\0';
     }
-    //openTxt(location);
+    // openTxt(location);
     char curr;
     curr = getch();
     while (curr != 27 || GetKeyState(VK_CAPITAL) >> 7 || GetKeyState(VK_NUMLOCK) >> 7) /// escape
     {
         if (!insideFindMenu)
         {
-            //printf("Caracterul scris: %d\n", curr);
+            // printf("Caracterul scris: %d\n", curr);
             fflush(stdin);
             if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('A') >> 7)
             {
@@ -1580,13 +1573,13 @@ void readText(char *location)
                 {
                     if (findMenuBox == 1)
                     {
-                        //cout << "TOFIND";
+                        // cout << "TOFIND";
                         if (isprint(curr))
                         {
                             int len = strlen(toFind);
                             toFind[len] = curr;
                             toFind[len + 1] = '\0';
-                            //cout << toFind << endl;
+                            // cout << toFind << endl;
                         }
                         else if (curr == 8)
                         {
@@ -1595,13 +1588,13 @@ void readText(char *location)
                     }
                     else if (findMenuBox == 2)
                     {
-                        //cout << "TOREPLACE";
+                        // cout << "TOREPLACE";
                         if (isprint(curr))
                         {
                             int len = strlen(toReplace);
                             toReplace[len] = curr;
                             toReplace[len + 1] = '\0';
-                            //cout << toReplace << endl;
+                            // cout << toReplace << endl;
                         }
                         else if (curr == 8)
                         {
