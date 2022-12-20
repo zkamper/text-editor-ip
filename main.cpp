@@ -1,14 +1,28 @@
+//          ,..........   ..........,
+//      ,..,'          '.'          ',..,
+//     ,' ,'            :            ', ',
+//    ,' ,'             :             ', ',
+//   ,' ,'              :              ', ',
+//  ,' ,'............., : ,.............', ',
+// ,'  '............   '.'   ............'  ',
+//  '''''''''''''''''';''';''''''''''''''''''
+//                     '''
+// Editor Text
+// Proiect realizat de:
+// -Barbarasa Sebastian-George
+// -Calin Ionut-Laurentiu
+
 #include <iostream>
 #include <winbgim.h>
 #include <graphics.h>
 #include <cmath>
+#include <fstream>
+#include <stdio.h>
+#include <windows.h>
 #include "display.h"
 #include "siruri.h"
 #define NMAX 10000
-#include <fstream>
-#include <stdio.h>
-// #include <thread>
-#include <windows.h>
+
 
 using namespace std;
 
@@ -25,11 +39,13 @@ int accentColor1 = COLOR(177, 187, 188); // Fundal butoane
 int accentColor2 = COLOR(99, 110, 109);  // Conturul de la hover la butoane
 int accentColor3 = COLOR(12, 17, 17);    // Culoarea textului la butoane
 int hlTextBk = COLOR(37, 150, 190);      // Culoarea de Highlight
-int hlText = WHITE;                      // COLOR(opus la tema normala)
+int hlText = WHITE;                      // Culoare text Highlighted
 int cursColor = accentColor3;
 int toggleOnColor = COLOR(22, 242, 95);  // Indicator ON
 int toggleOffColor = COLOR(130, 10, 10); // Indicator OFF
 
+
+//Variabile pentru a calcula bara de scroll
 double displayOffset = 0;
 double displayOffset2 = 0;
 double currDisplayOffset = 0;
@@ -37,21 +53,28 @@ double currDisplayOffset2 = 0;
 double barRaport;
 double barRaport2;
 double currBarOffset = 0;
+
 int page = 0;
+
 bool typedText = false;
 bool isHl = false;
 bool changedText;
+int insideFindMenu = false;
+int findMenuBox = 0;
 
+//Variabile WordWrap
 double offsetHeight, offsetLength;
 double currWordLength = 0;
 int currWordStart = 0;
-int insideFindMenu = false;
+
 
 char *upArrow = "icons\\up.gif";
 char *downArrow = "icons\\down.gif";
 char *leftArrow = "icons\\left.gif";
 char *rightArrow = "icons\\right.gif";
 
+
+// Prima structura folosita pt. WordWrap
 struct
 {
     int x, y;
@@ -60,6 +83,7 @@ struct
 } text[NMAX];
 int lgtext = 0;
 
+// Structura unui rand
 struct row
 {
     char *text;
@@ -69,7 +93,7 @@ struct row
     int index;
 };
 
-struct editorConfig
+struct editorConfig //Structura ce retine randurile
 {
     row row[10000];
     bool isWordWrap = false;
@@ -77,18 +101,27 @@ struct editorConfig
     int rowCount = 1;
 } editor, editorWrap;
 
-char *clipboard;
-char toFind[100];
-char toReplace[100];
-int findMenuBox = 0;
-char alltext[1000000];
-int indexStart = 0, indexFinish = 0;
-
-struct Cursor
+struct Cursor   //Structura ce retine indexul cursorului in functie de linii si coloane
 {
     int lin = 0, col = 0, lin2 = 0, col2 = 0;
 } cursor, cursorWrap;
 
+char lncol[100];
+
+char alltext[1000000];  //Structura ce retine textul in memorie, pe ea se fac toate functiile
+int indexStart = 0, indexFinish = 0;    //Indexul cursorului in memorie
+
+
+//Clipboard, text de cautat si text de inlocuit
+char *clipboard;
+char toFind[100];
+char toReplace[100];
+
+char *locationFound;
+
+char *location; //Locatia fisierului text
+
+//Prototipul functiilor folosite
 int cursorToIndex(int lin, int col);
 void getButtonClick(int x, int y);
 void setPosChar(char curr);
@@ -108,7 +141,7 @@ void drawFindMenu()
 {
     setactivepage(getvisualpage());
     setfillstyle(1, accentColor1);
-    bar(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height+30);
+    bar(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height + 30);
     setfillstyle(1, WHITE);
     bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
     bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
@@ -154,10 +187,12 @@ int howManyFound(char *alltext, char *toBeFound)
     while (p)
     {
         p = strstr(p, toBeFound);
-        if(p==NULL)
-            {ans++;
-            break;}
-            
+        if (p == NULL)
+        {
+            ans++;
+            break;
+        }
+
         p++;
         ans++;
     }
@@ -168,8 +203,10 @@ bool findFirst(char *textToSearch, char *toBeFound)
 {
     char *p = strstr(textToSearch, toBeFound);
     if (!p)
-        {cout<<"Nu am gasit";
-        return false;}
+    {
+        //cout << "Nu am gasit";
+        return false;
+    }
     indexStart = (p - alltext);
     indexFinish = indexStart + strlen(toBeFound);
     isHl = typedText = true;
@@ -191,7 +228,7 @@ void copy()
     if (!isHl)
         return;
     clipboard = subStr(alltext, indexStart, indexFinish - 1);
-    cout << clipboard << endl;
+    //cout << clipboard << endl;
 }
 
 void cut()
@@ -301,8 +338,6 @@ void indexToCurs(int index, int &lin, int &col)
     // printf("INDEX: %d => [%d %d]\n", index, lin, col);
 }
 
-char lncol[100];
-
 void drawCursor(Cursor cursor)
 {
     Point cursorP = cursorPosition(cursor);
@@ -313,46 +348,70 @@ void drawCursor(Cursor cursor)
     line(x - currDisplayOffset, y - currDisplayOffset2, x - currDisplayOffset, y - currDisplayOffset2 + textheight("String"));
     setcolor(prevColor);
     Point cursorNormal = cursorPosition(::cursor);
-    
-    lncol[0]='\0';
-    
-    int lin,col;
-    char ln[100],cl[100];
+
+    lncol[0] = '\0';
+
+    int lin, col;
+    char ln[100], cl[100];
     int oldWrap = editor.isWordWrap;
     editor.isWordWrap = 0;
-    indexToCurs(indexFinish,lin,col);
+    indexToCurs(indexFinish, lin, col);
     editor.isWordWrap = oldWrap;
-    
-    itoa(lin+1,ln,10);
-    itoa(col+1,cl,10);
-    strcat(lncol,"Ln ");
-    strcat(lncol,ln);
-    strcat(lncol,", Col ");
-    
-    strcat(lncol,cl);
-    
+
+    itoa(lin + 1, ln, 10);
+    itoa(col + 1, cl, 10);
+    strcat(lncol, "Ln ");
+    strcat(lncol, ln);
+    strcat(lncol, ", Col ");
+
+    strcat(lncol, cl);
+
     lnColInd.text = lncol;
 }
 
-void openTxt(char *location)
+int cursorToIndex(int lin, int col)
 {
-    if (location == NULL)
-        return;
-    else
-    {
-        printf("Opened %s", location);
-        FILE *myFile = fopen(location, "r");
-        while (!feof(myFile))
-        {
-            char *s = (char *)malloc(1000);
-            fgets(s, 1000, myFile);
-            strcat(alltext, s);
-            editor.rowCount++;
-            free(s);
-        }
-    }
+    int nr = 0, i;
+    for (i = 0; i < lin; i++)
+        if (editor.isWordWrap == 0)
+            nr += strlen(editor.row[i].text);
+        else
+            nr += strlen(editorWrap.row[i].text);
+    nr += col;
+    return nr;
+}
 
+void open()
+{
+    location = (char*)malloc(1000);
+    location[0]='\0';
+    cout<<"Open from: ";
+    cin>>location;
+    FILE *myFile = fopen(location, "r");
+    while (!feof(myFile))
+    {
+        char *s = (char *)malloc(10000);
+        fgets(s, 10000, myFile);
+        strcat(alltext, s);
+        editor.rowCount++;
+        free(s);
+    }
+    printf("\n\nOpened %s", location);
+    fclose(myFile);
     displayRows();
+}
+
+void save()
+{
+    if (!location)
+    {
+        location = (char *)malloc(100);
+        cout << "\n\nSave as: ";
+        cin >> location;
+    }
+    FILE *saveHere = fopen(location, "w");
+    fprintf(saveHere, "%s", alltext);
+    fclose(saveHere);
 }
 
 void drawIcons()
@@ -419,7 +478,8 @@ void drawIcons()
     openButton.text = "Open";
     findButton.text = "Find & Replace";
     timeButton.text = "Time/Date";
-    if(lnColInd.text == NULL) lnColInd.text ="Ln 1, Col 1";
+    if (lnColInd.text == NULL)
+        lnColInd.text = "Ln 1, Col 1";
 
     fontButton.font = font;
 
@@ -445,7 +505,7 @@ void drawIcons()
     wordWrap.b.x = timeButton.b.x + timeButton.buttonWidth + offset * 3;
     numLock.b.x = wordWrap.b.x + wordWrap.toggleWidth + offset;
     capsLock.b.x = numLock.b.x + numLock.toggleWidth + offset;
-    lnColInd.b.x = winLength-lnColInd.buttonWidth-offset;
+    lnColInd.b.x = winLength - lnColInd.buttonWidth - offset;
 
     lnColInd.b.y = numLock.b.y = capsLock.b.y = timeButton.b.y = findButton.b.y = openButton.b.y = cutButton.b.y = saveButton.b.y = copyButton.b.y = pasteButton.b.y = fontButton.b.y = wordWrap.b.y = offset;
 
@@ -551,19 +611,6 @@ void calculateBar(editorConfig editor)
     }
 }
 
-void initBuffer()
-{
-    int formerPage = getactivepage();
-    setactivepage(1);
-    setbkcolor(bkColor);
-    cleardevice();
-    setcolor(accentColor2);
-    setlinestyle(0, 0, 2);
-    drawToggle(numLock);
-    drawToggle(capsLock);
-    line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
-    setactivepage(formerPage);
-}
 
 void displayRows()
 {
@@ -635,7 +682,6 @@ void displayRows()
                 if (cursor.col > 0)
                     p2 = subStr(editor.row[i].text, cursor.col2, cursor.col - 1);
                 outtextxy(x - currDisplayOffset + textwidth(p), y - currDisplayOffset2, p2);
-                cout << cursor.col << " " << cursor.col2;
                 char *p3 = subStr(editor.row[i].text, cursor.col, strlen(editor.row[i].text));
                 setbkcolor(bkPrev);
                 setcolor(colPrev);
@@ -848,8 +894,6 @@ void shiftDown()
     }
 }
 
-char *locationFound;
-
 void getButtonClick(int x, int y)
 {
     setactivepage(getvisualpage());
@@ -861,7 +905,7 @@ void getButtonClick(int x, int y)
         {
             if (b[i].b.x <= x && x <= b[i].b.x + b[i].buttonWidth && b[i].b.y <= y && y <= b[i].b.y + b[i].buttonHeight)
             {
-                cout << b[i].text << " ";
+                //cout << b[i].text << " ";
                 if (strcmp(b[i].text, "Copy") == 0)
                     copy();
                 if (strcmp(b[i].text, "Paste") == 0)
@@ -887,6 +931,15 @@ void getButtonClick(int x, int y)
                     toReplace[0] = '\0';
                     locationFound = alltext;
                     drawFindMenu();
+                }
+                if (strcmp(b[i].text, "Save") == 0)
+                {
+                    //cout << "SAVE";
+                    save();
+                }
+                if (strcmp(b[i].text, "Open") == 0)
+                {
+                    open();
                 }
             }
         }
@@ -919,57 +972,57 @@ void getButtonClick(int x, int y)
     {
         if (findMenu.b.x <= x && x <= findMenu.b.x + findMenu.width / 3 && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
         {
-            cout <<howManyFound(alltext,toFind)<<endl;
-            if(!findFirst(locationFound, toFind) && locationFound == alltext)
+            //cout << howManyFound(alltext, toFind) << endl;
+            if (!findFirst(locationFound, toFind) && locationFound == alltext)
                 return;
-            if(!findFirst(locationFound, toFind) && locationFound > alltext)
-                locationFound=alltext;
-            findFirst(locationFound,toFind);
-            locationFound = strstr(locationFound,toFind);
-            locationFound+=1;
+            if (!findFirst(locationFound, toFind) && locationFound > alltext)
+                locationFound = alltext;
+            findFirst(locationFound, toFind);
+            locationFound = strstr(locationFound, toFind);
+            locationFound += 1;
             displayRows();
             drawFindMenu();
             //(findMenu.b.x, findMenu.b.y, findMenu.b.x + findMenu.width, findMenu.b.y + findMenu.height+30);
-            char apparitions[100]="There are ";
+            char apparitions[100] = "There are ";
             char count[100];
-            itoa(howManyFound(alltext,toFind),count,10);
-            strcat(apparitions,count);
-            strcat(apparitions," match(es).");
+            itoa(howManyFound(alltext, toFind), count, 10);
+            strcat(apparitions, count);
+            strcat(apparitions, " match(es).");
             int oldColor = getcolor();
             int oldBkColor = getbkcolor();
             setcolor(BLACK);
             setbkcolor(accentColor1);
             settextstyle(0, 0, 0);
-            outtextxy(findMenu.b.x+10,findMenu.b.y+findMenu.height,apparitions);
+            outtextxy(findMenu.b.x + 10, findMenu.b.y + findMenu.height, apparitions);
             setcolor(oldColor);
             setcolor(oldBkColor);
             setTextFont();
         }
         if (findMenu.b.x + findMenu.width / 3 <= x && x <= findMenu.b.x + findMenu.width / 3 * 2 && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
         {
-            if(!findFirst(locationFound, toFind) && locationFound == alltext)
+            if (!findFirst(locationFound, toFind) && locationFound == alltext)
                 return;
-            if(!findFirst(locationFound, toFind) && locationFound > alltext)
-                locationFound=alltext;
-            if(strcmp(subStr(alltext,indexStart,indexFinish-1),toReplace)!=0)
+            if (!findFirst(locationFound, toFind) && locationFound > alltext)
+                locationFound = alltext;
+            if (strcmp(subStr(alltext, indexStart, indexFinish - 1), toReplace) != 0)
             {
-                    locationFound = alltext;
-                    findFirst(locationFound,toFind);
+                locationFound = alltext;
+                findFirst(locationFound, toFind);
             }
-            replaceFirst(locationFound,toReplace);
-            locationFound=alltext;
-            findFirst(locationFound,toFind);
+            replaceFirst(locationFound, toReplace);
+            locationFound = alltext;
+            findFirst(locationFound, toFind);
             displayRows();
             drawFindMenu();
         }
         if (findMenu.b.x + findMenu.width / 3 * 2 <= x && x <= findMenu.b.x + findMenu.width && findMenu.b.y + 60 <= y && y <= findMenu.b.y + findMenu.height)
         {
-            while(findFirst(alltext,toFind))
+            while (findFirst(alltext, toFind))
             {
-                replaceFirst(alltext,toReplace);
-                locationFound=alltext;
+                replaceFirst(alltext, toReplace);
+                locationFound = alltext;
             }
-            insideFindMenu=false;
+            insideFindMenu = false;
             displayRows();
         }
     }
@@ -1154,6 +1207,21 @@ void getRClickUp(int x, int y)
     displayRows();
 }
 
+
+void initBuffer()
+{
+    int formerPage = getactivepage();
+    setactivepage(1);
+    setbkcolor(bkColor);
+    cleardevice();
+    setcolor(accentColor2);
+    setlinestyle(0, 0, 2);
+    drawToggle(numLock);
+    drawToggle(capsLock);
+    line(0, saveButton.buttonHeight + 9, winLength, saveButton.buttonHeight + 9);
+    setactivepage(formerPage);
+}
+
 void windowsInit()
 {
     findMenu.width = 300;
@@ -1293,7 +1361,7 @@ void wordWrapAll()
         editorWrap.row[i].text[0] = '\0';
     if (editor.row[0].text[0] == NULL)
     {
-        cout << "Cannot wordwrap.\n";
+        //cout << "Cannot wordwrap.\n";
         editor.isWordWrap = 1 - wordWrap.isSet;
         wordWrap.isSet = 1 - wordWrap.isSet;
         drawToggle(wordWrap);
@@ -1359,18 +1427,6 @@ void wordWrapAll()
     /// de implementat cursorul pentru Wrap... cand citim textul
 }
 
-int cursorToIndex(int lin, int col)
-{
-    int nr = 0, i;
-    for (i = 0; i < lin; i++)
-        if (editor.isWordWrap == 0)
-            nr += strlen(editor.row[i].text);
-        else
-            nr += strlen(editorWrap.row[i].text);
-    nr += col;
-    return nr;
-}
-
 void readText(char *location)
 {
     int c1, c2;
@@ -1382,14 +1438,14 @@ void readText(char *location)
         // editor.row[i].text[0] = '\0';
         // editorWrap.row[i].text[0] = '\0';
     }
-    openTxt(location);
+    //openTxt(location);
     char curr;
     curr = getch();
     while (curr != 27 || GetKeyState(VK_CAPITAL) >> 7 || GetKeyState(VK_NUMLOCK) >> 7) /// escape
     {
         if (!insideFindMenu)
         {
-            printf("Caracterul scris: %d\n", curr);
+            //printf("Caracterul scris: %d\n", curr);
             fflush(stdin);
             if (GetKeyState(VK_CONTROL) >> 7 && GetKeyState('A') >> 7)
             {
@@ -1460,6 +1516,22 @@ void readText(char *location)
                     displayRows();
                 }
             }
+            // else if (VK_DELETE) /// BACKSPACE
+            // {
+            //     typedText = true;
+            //     if (isHl)
+            //     {
+            //         stergere(alltext, indexStart, indexFinish);
+            //         isHl = false;
+            //         indexFinish = indexStart;
+            //         displayRows();
+            //     }
+            //     else if (indexStart < strlen(alltext))
+            //     {
+            //         stergere(alltext, indexStart, indexStart+1);
+            //         displayRows();
+            //     }
+            // }
             else if (curr != NULL && (isprint(curr) || curr == 9 || curr == 13))
             {
                 typedText = true;
@@ -1508,13 +1580,13 @@ void readText(char *location)
                 {
                     if (findMenuBox == 1)
                     {
-                        cout << "TOFIND";
+                        //cout << "TOFIND";
                         if (isprint(curr))
                         {
                             int len = strlen(toFind);
                             toFind[len] = curr;
                             toFind[len + 1] = '\0';
-                            cout << toFind << endl;
+                            //cout << toFind << endl;
                         }
                         else if (curr == 8)
                         {
@@ -1523,13 +1595,13 @@ void readText(char *location)
                     }
                     else if (findMenuBox == 2)
                     {
-                        cout << "TOREPLACE";
+                        //cout << "TOREPLACE";
                         if (isprint(curr))
                         {
                             int len = strlen(toReplace);
                             toReplace[len] = curr;
                             toReplace[len + 1] = '\0';
-                            cout << toReplace << endl;
+                            //cout << toReplace << endl;
                         }
                         else if (curr == 8)
                         {
@@ -1556,7 +1628,6 @@ void readText(char *location)
 int main(int argn, char *argc[])
 {
     windowsInit();
-    // debugFunc();
     readText(argc[1]);
     closegraph();
     return 0;
