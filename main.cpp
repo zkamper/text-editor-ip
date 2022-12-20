@@ -166,9 +166,9 @@ void drawFindMenu()
     settextstyle(0, 0, 0);
     int oldbkcolor = getbkcolor();
     setbkcolor(accentColor1);
-    outtextxy(findMenu.b.x + findMenu.width / 6 - textwidth("FIND") / 2, findMenu.b.y + findMenu.height - textheight("FIND") / 2 - 20, "FIND");
-    outtextxy(findMenu.b.x + findMenu.width / 6 + findMenu.width / 3 * 1 - textwidth("REPLACE ") / 2, findMenu.b.y + findMenu.height - 20 - textheight("REPLACE") / 2, "REPLACE");
-    outtextxy(findMenu.b.x + findMenu.width / 6 + findMenu.width / 3 * 2 - textwidth("REPLACE  ALL") / 2, findMenu.b.y + findMenu.height - 20 - textheight("REPLACE ALL") / 2, "REPLACE ALL");
+    outtextxy(findMenu.b.x + findMenu.width / 6 - textwidth("FIND   ") / 2, findMenu.b.y + findMenu.height - textheight("FIND") / 2 - 20, "FIND");
+    outtextxy(findMenu.b.x + findMenu.width / 6 + findMenu.width / 3 * 1 - textwidth("REPLACE   ") / 2, findMenu.b.y + findMenu.height - 20 - textheight("REPLACE") / 2, "REPLACE");
+    outtextxy(findMenu.b.x + findMenu.width / 6 + findMenu.width / 3 * 2 - textwidth("REPLACE    ALL") / 2, findMenu.b.y + findMenu.height - 20 - textheight("REPLACE ALL") / 2, "REPLACE ALL");
     setbkcolor(oldbkcolor);
     bar(findMenu.b.x + 10, findMenu.b.y + 10, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 30);
     bar(findMenu.b.x + 10, findMenu.b.y + 40, findMenu.b.x + findMenu.width - 10, findMenu.b.y + 60);
@@ -511,7 +511,7 @@ void drawIcons()
     lnColInd.buttonHeight = 40;
     lnColInd.buttonWidth = 145;
 
-    findButton.buttonWidth = 140;
+    findButton.buttonWidth = 145;
     saveButton.b.x = offset;
     openButton.b.x = saveButton.b.x + saveButton.buttonWidth + offset;
     findButton.b.x = openButton.b.x + openButton.buttonWidth + offset;
