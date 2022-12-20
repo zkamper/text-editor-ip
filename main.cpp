@@ -281,8 +281,6 @@ void changeCursorColor()
     displayRows();
 }
 
-Point cursorPosition(Cursor cursor);
-
 bool cursorOutOfBounds(Cursor cursor)
 {
     Point cursorP = cursorPosition(cursor);
