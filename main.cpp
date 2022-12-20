@@ -1,7 +1,7 @@
 //          ,..........   ..........,
 //      ,..,'          '.'          ',..,
 //     ,' ,'            :            ', ',
-//    ,' ,'             :             ', ',
+//    ,' ,'      I      :      P      ', ',
 //   ,' ,'              :              ', ',
 //  ,' ,'............., : ,.............', ',
 // ,'  '............   '.'   ............'  ',
@@ -117,20 +117,43 @@ char *locationFound;
 char *location; // Locatia fisierului text
 
 // Prototipul functiilor folosite
+void drawFindMenu();
+void insertTime();
+int howManyFound(char *alltext, char *toBeFound);
+bool findFirst(char *textToSearch, char *toBeFound);
+void replaceFirst(char *alltext, char *toReplace);
+void copy();
+void cut();
+void paste();
+void changeCursorColor();
+Point cursorPosition(Cursor cursor);
+bool cursorOutOfBounds(Cursor cursor);
+Point cursorPosition(Cursor cursor);
+void indexToCurs(int index, int &lin, int &col);
+void drawCursor(Cursor cursor);
 int cursorToIndex(int lin, int col);
-void getButtonClick(int x, int y);
-void setPosChar(char curr);
-void getMouseHover(int x, int y);
-void getRClickUp(int x, int y);
-void getRClickDown(int x, int y);
-void debugFunct();
-void drawArrowsHorizontal();
+void open();
+void save();
+void drawIcons();
 void drawHorizBar();
-void wordWrapAll();
+void drawVerticalBar();
+void drawArrowsHorizontal();
+void drawArrowsVertical();
+void drawBar();
+void calculateBar(editorConfig editor);
 void displayRows();
-void wordWrapAll();
-void alltextToNonWrap();
 void setTextFont();
+void shiftUp();
+void shiftDown();
+void getButtonClick(int x, int y);
+void getRClickDown(int x, int y);
+void getRClickUp(int x, int y);
+void getMouseHover(int x, int y);
+void initBuffer();
+void windowsInit();
+void alltextToNonWrap();
+void wordWrapAll();
+void readText(char *location);
 
 void drawFindMenu()
 {
@@ -779,6 +802,7 @@ void displayRows()
         drawCursor(cursorWrap);
     setviewport(0, 0, winLength, winHeight, 1);
     drawButton(lnColInd);
+    setTextFont();
     drawBar();
     swapbuffers();
 }
