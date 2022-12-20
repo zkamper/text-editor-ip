@@ -401,7 +401,8 @@ void open()
 {
     location = (char *)malloc(1000);
     location[0] = '\0';
-    cout << "Open from: ";
+    alltext[0] = '\0';
+    cout << "\n\nOpen from: ";
     cin >> location;
     FILE *myFile = fopen(location, "r");
     while (!feof(myFile))
@@ -414,6 +415,7 @@ void open()
     }
     printf("\n\nOpened %s", location);
     fclose(myFile);
+    indexStart = indexFinish = 0;
     displayRows();
 }
 
