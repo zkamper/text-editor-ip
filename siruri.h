@@ -38,3 +38,4 @@ char* getCurrentDate()
     tm tstruct = *localtime(&currDate);
     return asctime(&tstruct);
 }
+}

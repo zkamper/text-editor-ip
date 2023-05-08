@@ -837,23 +837,23 @@ void setTextFont()
         lengthError = 1.3;
         break;
     case 7:
-        settextstyle(TRIPLEX_SCR_FONT, 0, 5);
+        settextstyle(TRIPLEX_SCR_FONT, 0, 2);
         lengthError = 1;
         break;
     case 8:
-        settextstyle(COMPLEX_FONT, 0, 5);
+        settextstyle(COMPLEX_FONT, 0, 2);
         lengthError = 1;
         break;
     case 9:
-        settextstyle(EUROPEAN_FONT, 0, 5);
+        settextstyle(EUROPEAN_FONT, 0, 2);
         lengthError = 1.3;
         break;
     case 10:
-        settextstyle(BOLD_FONT, 0, 5);
+        settextstyle(BOLD_FONT, 0, 2);
         lengthError = 1.1;
         break;
     default:
-        settextstyle(DEFAULT_FONT, 0, 5);
+        settextstyle(DEFAULT_FONT, 0, 2);
         lengthError = 1.2;
         break;
     }
